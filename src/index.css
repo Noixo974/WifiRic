@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    font-family: 'Rajdhani', sans-serif;
+  }
+  :root {
+    /* Primary Colors */
+    --primary: 196 75% 71%; /* #9cd4e3 */
+    --primary-foreground: 210 20% 15%;
+    --primary-glow: 196 85% 81%;
+    --primary-muted: 196 45% 61%;
+    
+    /* Secondary Colors */
+    --secondary: 200 95% 90%;
+    --secondary-foreground: 200 10% 20%;
+    
+    /* Background Colors */
+    --background: 0 0% 100%;
+    --foreground: 224 71% 4%;
+    
+    /* Card Colors */
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    
+    /* Popover Colors */
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    
+    /* Muted Colors */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
+    
+    /* Accent Colors */
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 8% 46%;
+    
+    /* Destructive Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 20% 98%;
+    
+    /* Border Colors */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 196 75% 71%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(196 75% 71%), hsl(210 100% 80%));
+    --gradient-secondary: linear-gradient(120deg, hsl(196 85% 81%), hsl(220 100% 85%));
+    --gradient-glow: linear-gradient(135deg, hsl(196 75% 71% / 0.1), hsl(210 100% 80% / 0.2));
+    
+    /* Shadows */
+    --shadow-glow: 0 4px 20px hsl(196 75% 71% / 0.15);
+    --shadow-neon: 0 4px 15px hsl(196 75% 71% / 0.2);
+    --shadow-elegant: 0 10px 30px -5px hsl(196 75% 71% / 0.2);
+    
+    /* Animation Timing */
+    --transition-smooth: all 0.2s ease-in-out;
+    --transition-bounce: all 0.3s ease-out;
+    
+    /* Glass Effect */
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+  }
+
+  .dark {
+    /* Primary Colors */
+    --primary: 196 75% 71%; /* Keep same primary */
+    --primary-foreground: 210 20% 98%;
+    --primary-glow: 196 85% 75%;
+    
+    /* Background Colors */
+    --background: 224 71% 4%;
+    --foreground: 210 20% 98%;
+    
+    /* Card Colors */
+    --card: 224 71% 4%;
+    --card-foreground: 210 20% 98%;
+    
+    /* Popover Colors */  
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 20% 98%;
+    
+    /* Muted Colors */
+    --muted: 215 27% 17%;
+    --muted-foreground: 217 10% 65%;
+    
+    /* Accent Colors */
+    --accent: 215 27% 17%;
+    --accent-foreground: 210 20% 98%;
+    
+    /* Border Colors */
+    --border: 215 27% 17%;
+    --input: 215 27% 17%;
+    
+    /* Gradients for Dark Mode */
+    --gradient-primary: linear-gradient(135deg, hsl(196 75% 71%), hsl(210 100% 70%));
+    --gradient-glow: linear-gradient(135deg, hsl(196 75% 71% / 0.15), hsl(210 100% 70% / 0.25));
+    
+    /* Glass Effect Dark */
+    --glass-bg: rgba(0, 0, 0, 0.3);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+@layer components {
+  .glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
+  
+  .shadow-neon {
+    box-shadow: 0 4px 15px hsl(var(--primary) / 0.15);
+  }
+  
+  .shadow-glow {
+    box-shadow: 0 4px 20px hsl(var(--primary) / 0.1);
+  }
+  
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-glow {
+    background: var(--gradient-glow);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
