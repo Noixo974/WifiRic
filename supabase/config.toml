@@ -1,0 +1,4 @@
+project_id = "ohsxncrxdqbsuxwybrjp"
+
+[functions.send-contact-to-discord]
+verify_jwt = false

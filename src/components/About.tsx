@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Code, Bot, Palette, Zap } from 'lucide-react';
+import { Code, Bot, Palette, TrendingUp } from 'lucide-react';
 
 export const About: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -38,13 +38,13 @@ export const About: React.FC = () => {
     {
       icon: Palette,
       title: 'Design Futuriste',
-      description: 'Interfaces utilisateur élégantes avec animations et micro-interactions.',
+      description: 'Interfaces utilisateur élégantes avec animations et micro-interactions et site sécurisées et optimisées pour garantir une meilleur expèriences utilisateur',
       gradient: 'from-purple-500 to-[#9cd4e3]'
     },
     {
-      icon: Zap,
-      title: 'Performance Optimisée',
-      description: 'Solutions rapides, sécurisées et optimisées pour garantir une meilleur expèriences utilisateur',
+      icon: TrendingUp,
+      title: 'Coût',
+      description: 'Des tarifs adaptés à vos besoins, avec des prix avantageux pour tous vos projets..',
       gradient: 'from-[#9cd4e3] to-yellow-500'
     }
   ];

@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, MessageSquare, Mail, ExternalLink, ChevronDown } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 export const Contact: React.FC = () => {
+  const { user, session, signInWithDiscord } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,6 +15,7 @@ export const Contact: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const projectTypes = [
@@ -47,14 +51,56 @@ export const Contact: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user || !session) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    alert('Message envoyé ! Nous vous recontacterons bientôt.');
-    setFormData({ name: '', email: '', subject: '', message: '', projectType: 'website' });
-    setIsSubmitting(false);
+    try {
+      // Sauvegarder dans la base de données
+      const { error: dbError } = await supabase
+        .from('contact_messages')
+        .insert([
+          {
+            user_id: session.user.id,
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+            project_type: formData.projectType,
+          },
+        ]);
+
+      if (dbError) throw dbError;
+
+      // Envoyer sur Discord
+      const { error: discordError } = await supabase.functions.invoke('send-contact-to-discord', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          project_type: formData.projectType,
+        },
+      });
+
+      if (discordError) {
+        console.error('Erreur Discord:', discordError);
+        // Ne pas bloquer si Discord échoue
+      }
+
+      alert('Message envoyé ! Nous vous recontacterons bientôt.');
+      setFormData({ name: '', email: '', subject: '', message: '', projectType: 'website' });
+    } catch (error) {
+      console.error('Error submitting message:', error);
+      alert('Erreur lors de l\'envoi du message. Veuillez réessayer.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -63,6 +109,40 @@ export const Contact: React.FC = () => {
       setErrors(prev => ({ ...prev, [e.target.name]: '' }));
     }
   };
+
+  if (showLoginPrompt) {
+    return (
+      <section className="py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
+                Connexion Requise
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+              Veuillez vous connecter avec votre compte Discord pour envoyer un message
+            </p>
+            <button
+              onClick={() => signInWithDiscord()}
+              className="group relative bg-gradient-to-r from-[#5865F2] to-[#4752C4] text-white font-semibold py-4 px-8 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#5865F2]/50 hover:scale-[1.02] active:scale-[0.98] inline-flex items-center space-x-3"
+            >
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.211.375-.445.864-.608 1.25a18.27 18.27 0 00-5.487 0c-.163-.386-.397-.875-.609-1.25a.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.08.08 0 00.087-.027c.461-.63.873-1.295 1.226-1.994a.076.076 0 00-.042-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.294.075.075 0 01.078-.01c3.928 1.793 8.18 1.793 12.062 0a.075.075 0 01.079.009c.12.098.246.198.373.295a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.699.772 1.365 1.225 1.994a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-4.467.151-8.35-.885-12.467a.07.07 0 00-.031-.028zM8.02 15.33c-1.183 0-2.157-.965-2.157-2.156 0-1.193.931-2.157 2.157-2.157 1.226 0 2.157.964 2.157 2.157 0 1.191-.931 2.157-2.157 2.157zm7.975 0c-1.183 0-2.157-.965-2.157-2.156 0-1.193.931-2.157 2.157-2.157 1.226 0 2.157.964 2.157 2.157 0 1.191-.931 2.157-2.157 2.157z" />
+              </svg>
+              <span>Connexion avec Discord</span>
+            </button>
+            <button
+              onClick={() => setShowLoginPrompt(false)}
+              className="ml-4 px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              Retour
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20">
@@ -139,6 +219,17 @@ export const Contact: React.FC = () => {
                 <li className="flex items-center transition-colors duration-300">
                   <div className="w-2 h-2 bg-[#9cd4e3] rounded-full mr-3"></div>
                   Satisfaction client garantie
+                </li>
+                <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 bg-clip-text text-transparent">
+                Tarifs ?
+              </h3>
+                                <li className="flex items-center transition-colors duration-300">
+                  <div className="w-2 h-2 bg-[#9cd4e3] rounded-full mr-3"></div>
+                  Le devis de votre Site Internet/Bot Discord sera gratuit.
+                </li>
+                                               <li className="flex items-center transition-colors duration-300">
+                  <div className="w-2 h-2 bg-[#9cd4e3] rounded-full mr-3"></div>
+                  En fonction de votre demande, le tarif sera adapté.
                 </li>
               </ul>
             </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, ExternalLink, Code, Bot, Palette, Zap, Star, Quote } from 'lucide-react';
+import { ArrowRight, ExternalLink, Code, Bot, Palette, Star, Quote, TrendingUp } from 'lucide-react';
 
 interface HeroProps {
   onNavigateToServices?: () => void;
@@ -10,7 +10,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
   const [currentText, setCurrentText] = useState(0);
   
   const texts = [
-    "Sites Internet adaptés à vos besoins",
+    "Sites Internet adaptés à vos besoins et à vos moyens financiers",
     "Bots Discord personnalisés selon vos besoins", 
     "Expériences Digitales Uniques"
   ];
@@ -31,13 +31,13 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
     {
       icon: Palette,
       title: 'Design UI/UX',
-      description: 'Interfaces utilisateur élégantes avec animations et micro-interactions immersives.',
+      description: 'Interfaces utilisateur élégantes avec animations et micro-interactions et site sécurisées et optimisées pour garantir une meilleur expèriences utilisateur',
       gradient: 'from-purple-500 to-[#9cd4e3]'
     },
     {
-      icon: Zap,
-      title: 'Performance',
-      description: 'Solutions optimisées pour une vitesse et une sécurité maximales selons vos demandes.',
+      icon: TrendingUp,
+      title: 'Coût',
+      description: 'Des tarifs adaptés à vos besoins, avec des prix avantageux pour tous vos projets..',
       gradient: 'from-[#9cd4e3] to-yellow-500'
     }
   ];
@@ -136,7 +136,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
             <div className="flex justify-center lg:justify-end">
               <div className="relative">
                 <img 
-                  src="https://i.ibb.co/4nXx45XS/Logo.png" 
+                  src="https://i.ibb.co/dxm3TCb/Logo.png" 
                   alt="WifiRic Logo" 
                   className="h-64 md:h-80 lg:h-96 transition-all duration-300 filter drop-shadow-2xl animate-float"
                 />

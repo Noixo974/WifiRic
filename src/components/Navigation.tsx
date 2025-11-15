@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { AuthModal } from './AuthModal';
+import { UserMenu } from './UserMenu';
 
 interface NavigationProps {
   currentPage: string;
@@ -11,7 +14,9 @@ interface NavigationProps {
 export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentPage }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isDark } = useTheme();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,10 +65,30 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
               </button>
             ))}
             <ThemeToggle />
+            {user ? (
+              <UserMenu onProfileClick={() => setCurrentPage('profile')} />
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="px-4 py-2 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#9cd4e3]/50 transition-all duration-300 hover:scale-105 active:scale-95"
+              >
+                Connexion
+              </button>
+            )}
           </div>
 
           <div className="md:hidden flex items-center space-x-4">
             <ThemeToggle />
+            {user ? (
+              <UserMenu onProfileClick={() => setCurrentPage('profile')} />
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="px-3 py-2 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-lg text-sm hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95"
+              >
+                Connexion
+              </button>
+            )}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-110 active:scale-95 hover:bg-primary/5 rounded-lg"
@@ -90,6 +115,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
           </div>
         )}
       </div>
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </nav>
   );
 };
