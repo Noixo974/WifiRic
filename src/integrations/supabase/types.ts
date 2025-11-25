@@ -49,8 +49,10 @@ export type Database = {
       }
       profiles: {
         Row: {
+          auto_join_discord: boolean
           avatar_url: string | null
           created_at: string | null
+          discord_access_token: string | null
           discord_id: string | null
           email: string | null
           id: string
@@ -58,8 +60,10 @@ export type Database = {
           username: string
         }
         Insert: {
+          auto_join_discord?: boolean
           avatar_url?: string | null
           created_at?: string | null
+          discord_access_token?: string | null
           discord_id?: string | null
           email?: string | null
           id: string
@@ -67,8 +71,10 @@ export type Database = {
           username: string
         }
         Update: {
+          auto_join_discord?: boolean
           avatar_url?: string | null
           created_at?: string | null
+          discord_access_token?: string | null
           discord_id?: string | null
           email?: string | null
           id?: string
@@ -77,15 +83,80 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          project_type: string | null
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          project_type?: string | null
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          project_type?: string | null
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -212,6 +283,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

@@ -8,7 +8,9 @@ import { About } from './components/About';
 import { FAQ } from './components/FAQ';
 import { Contact } from './components/Contact';
 import { Profile } from './components/Profile';
+import { Admin } from './components/Admin';
 import { Footer } from './components/Footer';
+import { Toaster } from './components/ui/toaster';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -45,6 +47,8 @@ function App() {
         return <Contact />;
       case 'profile':
         return <Profile onNavigateHome={() => setCurrentPage('home')} />;
+      case 'admin':
+        return <Admin onNavigateHome={() => setCurrentPage('home')} />;
       default:
         return <Hero onNavigateToServices={scrollToServices} />;
     }
@@ -68,6 +72,7 @@ function App() {
             </div>
           </main>
           <Footer setCurrentPage={setCurrentPage} />
+          <Toaster />
         </div>
       </AuthProvider>
     </ThemeProvider>

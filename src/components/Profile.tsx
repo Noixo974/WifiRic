@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, MessageSquare, Trash2, Calendar, User as UserIcon } from 'lucide-react';
+import { Mail, MessageSquare, Trash2, Calendar, User as UserIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { toast } from '../hooks/use-toast';
 
 interface ContactMessage {
   id: string;
@@ -22,10 +23,33 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigateHome }) => {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [autoJoinDiscord, setAutoJoinDiscord] = useState<boolean>(true);
+  const [isUpdatingPreference, setIsUpdatingPreference] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const messagesPerPage = 5;
 
   useEffect(() => {
     fetchMessages();
+    fetchPreferences();
   }, [user]);
+
+  const fetchPreferences = async () => {
+    if (!user) return;
+
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('auto_join_discord')
+        .eq('id', user.id)
+        .single();
+      
+      if (data) {
+        setAutoJoinDiscord(data.auto_join_discord);
+      }
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+    }
+  };
 
   const fetchMessages = async () => {
     if (!user) return;
@@ -46,6 +70,39 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigateHome }) => {
     }
   };
 
+  const handleToggleAutoJoin = async () => {
+    if (!user) return;
+    
+    try {
+      setIsUpdatingPreference(true);
+      const newValue = !autoJoinDiscord;
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ auto_join_discord: newValue })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      setAutoJoinDiscord(newValue);
+      toast({
+        title: "Préférence mise à jour",
+        description: newValue 
+          ? "Vous rejoindrez automatiquement le serveur Discord" 
+          : "Vous ne rejoindrez plus automatiquement le serveur Discord",
+      });
+    } catch (error) {
+      console.error('Error updating preference:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de mettre à jour la préférence",
+      });
+    } finally {
+      setIsUpdatingPreference(false);
+    }
+  };
+
   const handleDeleteMessage = async (id: string) => {
     try {
       setDeletingId(id);
@@ -56,9 +113,17 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigateHome }) => {
 
       if (error) throw error;
       setMessages(messages.filter(msg => msg.id !== id));
+      toast({
+        title: "Message supprimé",
+        description: "Le message a été supprimé avec succès",
+      });
     } catch (error) {
       console.error('Error deleting message:', error);
-      alert('Erreur lors de la suppression du message');
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de supprimer le message",
+      });
     } finally {
       setDeletingId(null);
     }
@@ -80,6 +145,20 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigateHome }) => {
     'discord-bot': 'Bot Discord',
     both: 'Les deux',
     other: 'Autre',
+  };
+
+  // Pagination
+  const indexOfLastMessage = currentPage * messagesPerPage;
+  const indexOfFirstMessage = indexOfLastMessage - messagesPerPage;
+  const currentMessages = messages.slice(indexOfFirstMessage, indexOfLastMessage);
+  const totalPages = Math.ceil(messages.length / messagesPerPage);
+
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
   };
 
   if (!user) {
@@ -133,8 +212,43 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigateHome }) => {
                     <UserIcon className="w-4 h-4" />
                     ID Discord: {user.discord_id}
                   </p>
-                </div>
-              </div>
+          </div>
+        </div>
+
+        {/* Section Préférences Discord */}
+        <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            Préférences Discord
+          </h2>
+          
+          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+            <div className="flex-1 mr-4">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                Rejoindre automatiquement le serveur Discord
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Lorsque activé, vous rejoindrez automatiquement notre serveur Discord lors de la connexion ou de l'envoi d'un message.
+              </p>
+            </div>
+            
+            <button
+              onClick={handleToggleAutoJoin}
+              disabled={isUpdatingPreference}
+              className={`
+                relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0
+                ${autoJoinDiscord ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500' : 'bg-gray-300 dark:bg-gray-600'}
+                ${isUpdatingPreference ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+              `}
+            >
+              <span
+                className={`
+                  inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                  ${autoJoinDiscord ? 'translate-x-6' : 'translate-x-1'}
+                `}
+              />
+            </button>
+          </div>
+        </div>
             </div>
           </div>
         </div>
@@ -161,8 +275,9 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigateHome }) => {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {messages.map((message) => (
+              <>
+                <div className="space-y-4">
+                  {currentMessages.map((message) => (
                   <div
                     key={message.id}
                     className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50 hover:border-[#9cd4e3]/30 transition-all duration-300 hover:shadow-lg"
@@ -206,8 +321,36 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigateHome }) => {
                       {message.message}
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-8 flex items-center justify-center gap-4">
+                    <button
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                      className="flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50 rounded-lg hover:border-[#9cd4e3]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Précédent
+                    </button>
+                    
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Page {currentPage} sur {totalPages}
+                    </span>
+                    
+                    <button
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50 rounded-lg hover:border-[#9cd4e3]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Suivant
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

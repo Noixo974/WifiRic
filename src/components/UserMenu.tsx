@@ -1,14 +1,17 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Shield } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../integrations/supabase/client';
 
 interface UserMenuProps {
   onProfileClick: () => void;
+  onAdminClick?: () => void;
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({ onProfileClick }) => {
+export const UserMenu: React.FC<UserMenuProps> = ({ onProfileClick, onAdminClick }) => {
   const { user, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,8 +25,32 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onProfileClick }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      setIsAdmin(!!data);
+    };
+
+    checkAdminRole();
+  }, [user]);
+
   const handleProfileClick = () => {
     onProfileClick();
+    setIsOpen(false);
+  };
+
+  const handleAdminClick = () => {
+    if (onAdminClick) {
+      onAdminClick();
+    }
     setIsOpen(false);
   };
 
@@ -71,6 +98,16 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onProfileClick }) => {
             <User className="w-5 h-5" />
             <span className="font-medium">Profil</span>
           </button>
+
+          {isAdmin && onAdminClick && (
+            <button
+              onClick={handleAdminClick}
+              className="w-full px-4 py-3 text-left flex items-center space-x-2 hover:bg-gradient-to-r hover:from-[#9cd4e3]/10 hover:to-blue-500/10 transition-colors duration-200 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border-t border-gray-200 dark:border-gray-700"
+            >
+              <Shield className="w-5 h-5" />
+              <span className="font-medium">Administration</span>
+            </button>
+          )}
 
           <button
             onClick={handleSignOut}

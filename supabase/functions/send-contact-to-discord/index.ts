@@ -69,6 +69,11 @@ serve(async (req) => {
           name: '💬 Message',
           value: message.length > 1024 ? message.substring(0, 1021) + '...' : message,
           inline: false
+        },
+        {
+          name: '📋 Suivi',
+          value: 'Réponse prévue dans les 48h via Discord (WifiRic)',
+          inline: false
         }
       ],
       timestamp: new Date().toISOString(),

@@ -1,13 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, ExternalLink, Code, Bot, Palette, Star, Quote, TrendingUp } from 'lucide-react';
+import { ArrowRight, ExternalLink, Code, Bot, Palette, Star, Quote, TrendingUp, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { ReviewForm } from './ReviewForm';
 
 interface HeroProps {
   onNavigateToServices?: () => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
-  const [animateText, setAnimateText] = useState(false);
   const [currentText, setCurrentText] = useState(0);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [allReviews, setAllReviews] = useState<any[]>([]);
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
+  const [selectedProjectType, setSelectedProjectType] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
   
   const texts = [
     "Sites Internet adaptés à vos besoins et à vos moyens financiers",
@@ -42,37 +55,185 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
     }
   ];
 
-  const testimonials = [
-    {
-      name: '(Prenom + Initiale.)',
-      role: '(Project)',
-      content: 'Avis',
-      rating: 3,
-      avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&=crop'
-    },
-    {
-      name: '(Prenom + Initiale.)',
-      role: '(Project)',
-      content: 'Avis',
-      rating: 5,
-      avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'
-    },
-    {
-      name: '(Prenom + Initiale.)',
-      role: '(Project)',
-      content: 'Avis',
-      rating: 4,
-      avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'
+  const fetchReviews = async () => {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        profiles!inner(username, avatar_url)
+      `)
+      .order('created_at', { ascending: false });
+      
+    if (data && !error) {
+      setAllReviews(data);
+      setTotalReviews(data.length);
+      
+      if (data.length > 0) {
+        const avg = data.reduce((sum: number, r: any) => sum + r.rating, 0) / data.length;
+        setAverageRating(avg);
+      }
+      
+      // Apply filters
+      applyFilters(data, selectedRating, selectedProjectType);
     }
-  ];
+  };
+
+  const applyFilters = (data: any[], rating: number | null, projectType: string | null) => {
+    let filtered = [...data];
+    
+    if (rating !== null) {
+      if (rating === 4) {
+        filtered = filtered.filter(r => r.rating >= 4);
+      } else {
+        filtered = filtered.filter(r => r.rating === rating);
+      }
+    }
+    
+    if (projectType !== null) {
+      filtered = filtered.filter(r => r.project_type === projectType);
+    }
+    
+    setReviews(filtered);
+    setCurrentReviewIndex(0);
+  };
+
+  const handleRatingFilter = (rating: number | null) => {
+    setSelectedRating(rating);
+    applyFilters(allReviews, rating, selectedProjectType);
+  };
+
+  const handleProjectTypeFilter = (type: string | null) => {
+    setSelectedProjectType(type);
+    applyFilters(allReviews, selectedRating, type);
+  };
+
+  const clearFilters = () => {
+    setSelectedRating(null);
+    setSelectedProjectType(null);
+    setReviews(allReviews);
+    setCurrentReviewIndex(0);
+  };
+
+  const hasActiveFilters = selectedRating !== null || selectedProjectType !== null;
+
+  const getVisibleCount = () => {
+    if (typeof window === 'undefined') return 3;
+    if (window.innerWidth < 768) return 1;
+    if (window.innerWidth < 1024) return 2;
+    return 3;
+  };
+
+  const [visibleCount, setVisibleCount] = useState(getVisibleCount());
+
+  const goToNextReviews = () => {
+    setCurrentReviewIndex((prev) => {
+      const next = prev + 1;
+      return next >= reviews.length ? 0 : next;
+    });
+  };
+
+  const goToPreviousReviews = () => {
+    setCurrentReviewIndex((prev) => 
+      prev === 0 ? reviews.length - 1 : prev - 1
+    );
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 50;
+    
+    if (Math.abs(distance) > minSwipeDistance) {
+      if (distance > 0) {
+        goToNextReviews();
+      } else {
+        goToPreviousReviews();
+      }
+    }
+    
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   useEffect(() => {
-    setAnimateText(true);
+    // Trigger cascade animation after a brief delay
+    const loadTimeout = setTimeout(() => {
+      setHasLoaded(true);
+    }, 100);
+    
     const interval = setInterval(() => {
       setCurrentText((prev) => (prev + 1) % texts.length);
     }, 3000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(loadTimeout);
+    };
   }, []);
+
+  useEffect(() => {
+    fetchReviews();
+    
+    const channel = supabase
+      .channel('reviews-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reviews'
+        },
+        () => {
+          fetchReviews();
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Re-apply filters when selection changes
+  useEffect(() => {
+    if (allReviews.length > 0) {
+      applyFilters(allReviews, selectedRating, selectedProjectType);
+    }
+  }, [selectedRating, selectedProjectType]);
+
+  // Auto-scroll effect
+  useEffect(() => {
+    if (!isAutoScrolling || reviews.length <= visibleCount) return;
+    
+    const interval = setInterval(() => {
+      goToNextReviews();
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [isAutoScrolling, reviews.length, currentReviewIndex, visibleCount]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      const newCount = getVisibleCount();
+      setVisibleCount(newCount);
+      if (currentReviewIndex >= reviews.length) {
+        setCurrentReviewIndex(0);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [currentReviewIndex, reviews.length]);
 
   return (
     <div className="relative">
@@ -83,7 +244,12 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             {/* Contenu à gauche */}
-            <div className={`transform transition-all duration-500 ${animateText ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            <div 
+              className={`transform transition-all duration-700 ${
+                hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              }`}
+              style={{ transitionDelay: '100ms' }}
+            >
               <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight text-left">
                 <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
                   WifiRic
@@ -133,7 +299,12 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
             </div>
 
             {/* Logo à droite */}
-            <div className="flex justify-center lg:justify-end">
+            <div 
+              className={`flex justify-center lg:justify-end transform transition-all duration-700 ${
+                hasLoaded ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-95'
+              }`}
+              style={{ transitionDelay: '300ms' }}
+            >
               <div className="relative">
                 <img 
                   src="https://i.ibb.co/dxm3TCb/Logo.png" 
@@ -150,7 +321,12 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
       {/* Section Nos Services */}
       <section id="nos-services" className="py-20 bg-white dark:bg-gray-800 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-left mb-16">
+          <div 
+            className={`text-left mb-16 transform transition-all duration-700 ${
+              hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            }`}
+            style={{ transitionDelay: '500ms' }}
+          >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
                 Nos Services
@@ -165,7 +341,10 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
             {services.map((service, index) => (
               <div
                 key={index}
-                className="group relative bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-600/50 hover:border-[#9cd4e3]/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
+                className={`group relative bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-600/50 hover:border-[#9cd4e3]/50 transition-all duration-700 hover:shadow-xl hover:-translate-y-2 ${
+                  hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                }`}
+                style={{ transitionDelay: `${700 + index * 150}ms` }}
               >
                 <div className={`inline-flex p-4 bg-gradient-to-r ${service.gradient} rounded-xl mb-6 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
                   <service.icon className="w-8 h-8 text-white" />
@@ -187,63 +366,360 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
       {/* Section Nos Avis */}
       <section className="py-20 bg-gray-100 dark:bg-gray-700 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-left mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
-                Nos Avis
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl">
-              Ce que nos clients disent de notre travail ?
+          <div 
+            className={`text-left mb-8 transform transition-all duration-700 ${
+              hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            }`}
+            style={{ transitionDelay: '1300ms' }}
+          >
+            <div className="flex items-center gap-4 flex-wrap">
+              <h2 className="text-4xl md:text-5xl font-bold">
+                <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
+                  Nos Avis
+                </span>
+              </h2>
+              
+              {totalReviews > 0 && (
+                <div className="flex items-center gap-2 group relative">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-6 h-6 ${
+                          star <= Math.round(averageRating)
+                            ? 'text-yellow-400 fill-current'
+                            : 'text-gray-300 dark:text-gray-600'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  
+                  <span className="text-gray-600 dark:text-gray-300 font-semibold">
+                    ({totalReviews})
+                  </span>
+                  
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                    {averageRating.toFixed(2)} / 5
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mt-4">
+              Ce que nos clients disent de notre travail
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="group relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-200/50 dark:border-gray-600/50 hover:border-[#9cd4e3]/50"
+          {/* Filters Section */}
+          {allReviews.length > 0 && (
+            <div 
+              className={`mb-8 transform transition-all duration-700 ${
+                hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              }`}
+              style={{ transitionDelay: '1500ms' }}
+            >
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-600 hover:border-[#9cd4e3]"
               >
-                <div className="absolute top-6 right-6 text-[#9cd4e3] opacity-20 group-hover:opacity-40 transition-opacity">
-                  <Quote className="w-8 h-8" />
-                </div>
-                
-                <div className="flex items-center mb-6">
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-16 h-16 rounded-full object-cover mr-4 ring-2 ring-[#9cd4e3]/20"
-                  />
-                  <div>
-                    <h4 className="font-bold text-gray-800 dark:text-white">{testimonial.name}</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
+                <Filter className="w-5 h-5 text-[#9cd4e3]" />
+                <span className="font-semibold text-gray-700 dark:text-gray-200">
+                  Filtres
+                </span>
+                {hasActiveFilters && (
+                  <span className="ml-1 px-2 py-0.5 bg-[#9cd4e3] text-white text-xs rounded-full">
+                    {(selectedRating ? 1 : 0) + (selectedProjectType ? 1 : 0)}
+                  </span>
+                )}
+              </button>
+
+              {showFilters && (
+                <div className="mt-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 animate-fade-in">
+                  <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Rating Filters */}
+                    <div className="flex-1">
+                      <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
+                        <Star className="w-4 h-4 text-yellow-400" />
+                        Note
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => handleRatingFilter(null)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                            selectedRating === null
+                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          Toutes
+                        </button>
+                        <button
+                          onClick={() => handleRatingFilter(5)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 ${
+                            selectedRating === 5
+                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          5 <Star className="w-4 h-4 fill-current" />
+                        </button>
+                        <button
+                          onClick={() => handleRatingFilter(4)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 ${
+                            selectedRating === 4
+                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          4+ <Star className="w-4 h-4 fill-current" />
+                        </button>
+                        <button
+                          onClick={() => handleRatingFilter(3)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 ${
+                            selectedRating === 3
+                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          3 <Star className="w-4 h-4 fill-current" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Project Type Filters */}
+                    <div className="flex-1">
+                      <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
+                        <Code className="w-4 h-4 text-[#9cd4e3]" />
+                        Type de projet
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => handleProjectTypeFilter(null)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                            selectedProjectType === null
+                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          Tous
+                        </button>
+                        <button
+                          onClick={() => handleProjectTypeFilter('Sites Web')}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                            selectedProjectType === 'Sites Web'
+                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          Sites Web
+                        </button>
+                        <button
+                          onClick={() => handleProjectTypeFilter('Bots Discord')}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                            selectedProjectType === 'Bots Discord'
+                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          Bots Discord
+                        </button>
+                        <button
+                          onClick={() => handleProjectTypeFilter('Design')}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                            selectedProjectType === 'Design'
+                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          Design
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Clear Filters */}
+                  {hasActiveFilters && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                      <button
+                        onClick={clearFilters}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-300"
+                      >
+                        <X className="w-4 h-4" />
+                        Réinitialiser les filtres
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Results count */}
+                  <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                    {reviews.length} avis {hasActiveFilters ? 'correspondent aux filtres' : 'au total'}
                   </div>
                 </div>
-                
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+              )}
+            </div>
+          )}
+
+          {reviews.length === 0 ? (
+            <div 
+              className={`text-center py-12 transform transition-all duration-700 ${
+                hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              }`}
+              style={{ transitionDelay: '1700ms' }}
+            >
+              <p className="text-lg text-gray-500 dark:text-gray-400">
+                Aucun avis pour le moment. Soyez le premier à partager votre expérience !
+              </p>
+            </div>
+          ) : (
+            <div 
+              className={`relative transform transition-all duration-700 ${
+                hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              }`}
+              style={{ transitionDelay: '1700ms' }}
+              onMouseEnter={() => setIsAutoScrolling(false)}
+              onMouseLeave={() => setIsAutoScrolling(true)}
+            >
+              {reviews.length > visibleCount && (
+                <button
+                  onClick={() => {
+                    goToPreviousReviews();
+                    setIsAutoScrolling(false);
+                  }}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-6 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-gray-200 dark:border-gray-600 hover:border-[#9cd4e3] hover:bg-gradient-to-r hover:from-[#9cd4e3]/10 hover:to-blue-500/10"
+                  aria-label="Avis précédents"
+                >
+                  <ChevronLeft className="w-6 h-6 text-[#9cd4e3]" />
+                </button>
+              )}
+              
+              <div 
+                className="overflow-hidden"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <div 
+                  className="flex transition-transform duration-500 ease-out"
+                  style={{ 
+                    transform: `translateX(-${(currentReviewIndex % reviews.length) * (100 / visibleCount)}%)` 
+                  }}
+                >
+                  {[...reviews, ...reviews.slice(0, visibleCount)].map((review, idx) => (
+                    <div
+                      key={`${review.id}-${idx}`}
+                      className="flex-shrink-0 px-4"
+                      style={{ width: `${100 / visibleCount}%` }}
+                    >
+                      <div className="group relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-200/50 dark:border-gray-600/50 hover:border-[#9cd4e3]/50 h-full animate-fade-in">
+                        <div className="absolute top-6 right-6 text-[#9cd4e3] opacity-20 group-hover:opacity-40 group-hover:rotate-12 transition-all duration-300">
+                          <Quote className="w-8 h-8" />
+                        </div>
+                        
+                        <div className="flex items-center mb-6">
+                          <img
+                            src={review.profiles?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + review.profiles?.username}
+                            alt={review.profiles?.username || 'User'}
+                            className="w-16 h-16 rounded-full object-cover mr-4 ring-2 ring-[#9cd4e3]/20 group-hover:ring-4 group-hover:ring-[#9cd4e3]/40 transition-all duration-300"
+                          />
+                          <div>
+                            <h4 className="font-bold text-gray-800 dark:text-white">
+                              {review.profiles?.username || 'Utilisateur'}
+                            </h4>
+                            {review.project_type && (
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {review.project_type}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex mb-4">
+                          {[...Array(review.rating)].map((_, i) => (
+                            <Star key={i} className="w-5 h-5 text-yellow-400 fill-current group-hover:scale-110 transition-transform duration-200" style={{ transitionDelay: `${i * 50}ms` }} />
+                          ))}
+                        </div>
+                        
+                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">
+                          "{review.content}"
+                        </p>
+                        
+                        <p className="text-xs text-gray-400 mt-4">
+                          {new Date(review.created_at).toLocaleDateString('fr-FR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
                   ))}
                 </div>
-                
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">
-                  "{testimonial.content}"
-                </p>
               </div>
-            ))}
-          </div>
+              
+              {reviews.length > visibleCount && (
+                <button
+                  onClick={() => {
+                    goToNextReviews();
+                    setIsAutoScrolling(false);
+                  }}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-6 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-gray-200 dark:border-gray-600 hover:border-[#9cd4e3] hover:bg-gradient-to-r hover:from-[#9cd4e3]/10 hover:to-blue-500/10"
+                  aria-label="Avis suivants"
+                >
+                  <ChevronRight className="w-6 h-6 text-[#9cd4e3]" />
+                </button>
+              )}
 
-          <div className="text-center mt-16">
-            <a
-              href="https://discord.gg/9mKPA3kHBA"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#9cd4e3]/50 hover:scale-105 active:scale-95"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-[#9cd4e3] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span className="relative">Rejoignez nos clients satisfaits</span>
-              <ArrowRight className="w-5 h-5 ml-2 relative group-hover:translate-x-1 transition-transform duration-300" />
-            </a>
+              {/* Pagination Dots */}
+              {reviews.length > visibleCount && (
+                <div className="flex justify-center gap-2 mt-8">
+                  {Array.from({ length: reviews.length }).map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setCurrentReviewIndex(idx);
+                        setIsAutoScrolling(false);
+                      }}
+                      className={`transition-all duration-300 rounded-full ${
+                        idx === currentReviewIndex % reviews.length
+                          ? 'w-8 h-3 bg-gradient-to-r from-[#9cd4e3] to-blue-500'
+                          : 'w-3 h-3 bg-gray-300 dark:bg-gray-600 hover:bg-[#9cd4e3]/50'
+                      }`}
+                      aria-label={`Aller à l'avis ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Section Poster un avis */}
+      <section className="py-16 bg-white dark:bg-gray-800 relative">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div 
+            className={`text-center mb-10 transform transition-all duration-700 ${
+              hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            }`}
+            style={{ transitionDelay: '1900ms' }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
+                Partagez votre expérience
+              </span>
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Vous avez travaillé avec nous ? Laissez-nous votre avis !
+            </p>
+          </div>
+          
+          <div 
+            className={`transform transition-all duration-700 ${
+              hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            }`}
+            style={{ transitionDelay: '2100ms' }}
+          >
+            <ReviewForm />
           </div>
         </div>
       </section>

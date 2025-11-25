@@ -39,8 +39,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (newSession?.user?.id) {
         // Defer profile fetching to avoid blocking the auth state change
-        setTimeout(() => {
-          fetchUserProfile(newSession.user!.id);
+        setTimeout(async () => {
+          await fetchUserProfile(newSession.user!.id);
+          
+          // Add user to Discord server after successful login and profile creation
+          if (event === 'SIGNED_IN') {
+            // Wait a bit longer to ensure the profile with access_token is created
+            setTimeout(async () => {
+              const { data: { session: freshSession } } = await supabase.auth.getSession();
+              const accessToken = freshSession?.access_token;
+
+              // Extract Discord token from multiple possible sources
+              const identities = (freshSession as any)?.user?.identities || [];
+              const firstIdentity = identities[0] || null;
+              const identityAccessToken = firstIdentity?.identity_data?.access_token;
+
+              const providerToken =
+                (freshSession as any)?.provider_token ??
+                identityAccessToken ??
+                (freshSession as any)?.user?.user_metadata?.provider_token;
+
+              try {
+                // Update profile with provider token if available
+                if (providerToken && freshSession?.user?.id) {
+                  await supabase
+                    .from('profiles')
+                    .update({ discord_access_token: providerToken })
+                    .eq('id', freshSession.user.id);
+                  console.log('Updated profile.discord_access_token after SIGNED_IN');
+                } else {
+                  console.warn('No Discord provider token found in session');
+                }
+
+                // Check auto_join_discord preference before calling edge function
+                const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('auto_join_discord')
+                  .eq('id', freshSession.user.id)
+                  .single();
+
+                // Invoke edge function with Authorization header only if auto_join_discord is enabled
+                if (accessToken && profile?.auto_join_discord) {
+                  const { data, error } = await supabase.functions.invoke('add-user-to-discord-server', {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                  });
+                  if (error) {
+                    console.error('Error adding user to Discord server (after login):', error);
+                  } else {
+                    console.log('Successfully added user to Discord server after login:', data);
+                  }
+                } else if (!profile?.auto_join_discord) {
+                  console.log('Auto-join Discord is disabled for this user');
+                } else {
+                  console.warn('No access token available to call add-user-to-discord-server');
+                }
+              } catch (err) {
+                console.error('Post-login Discord join flow error:', err);
+              }
+            }, 1000);
+          }
         }, 0);
       } else {
         setUser(null);
@@ -117,6 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         provider: 'discord',
         options: {
           redirectTo: `${window.location.origin}`,
+          scopes: 'identify email guilds.join'
         },
       });
       if (error) {

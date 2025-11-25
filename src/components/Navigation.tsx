@@ -66,7 +66,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
             ))}
             <ThemeToggle />
             {user ? (
-              <UserMenu onProfileClick={() => setCurrentPage('profile')} />
+              <UserMenu onProfileClick={() => setCurrentPage('profile')} onAdminClick={() => setCurrentPage('admin')} />
             ) : (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
@@ -80,7 +80,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
           <div className="md:hidden flex items-center space-x-4">
             <ThemeToggle />
             {user ? (
-              <UserMenu onProfileClick={() => setCurrentPage('profile')} />
+              <UserMenu onProfileClick={() => setCurrentPage('profile')} onAdminClick={() => setCurrentPage('admin')} />
             ) : (
               <button
                 onClick={() => setIsAuthModalOpen(true)}

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, MessageSquare, Mail, ExternalLink, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { toast } from '../hooks/use-toast';
 
 export const Contact: React.FC = () => {
   const { user, session, signInWithDiscord } = useAuth();
@@ -93,11 +94,48 @@ export const Contact: React.FC = () => {
         // Ne pas bloquer si Discord échoue
       }
 
-      alert('Message envoyé ! Nous vous recontacterons bientôt.');
+      // Check auto_join_discord preference before adding user to Discord server
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('auto_join_discord')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile?.auto_join_discord) {
+          console.log('Calling add-user-to-discord-server from Contact');
+          const token = session?.access_token;
+          if (token) {
+            const { error } = await supabase.functions.invoke('add-user-to-discord-server', {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (error) {
+              console.error('Error adding user to Discord server:', error);
+            }
+          } else {
+            console.warn('No session token to call add-user-to-discord-server from Contact');
+          }
+        } else {
+          console.log('Auto-join Discord is disabled for this user (Contact form)');
+        }
+      } catch (error) {
+        console.error('Error adding user to Discord server:', error);
+      }
+
+      // Show success toast
+      toast({
+        title: "Demande envoyée avec succès !",
+        description: "Nous vous répondrons dans les 48h sur notre Discord : WifiRic",
+      });
+      
       setFormData({ name: '', email: '', subject: '', message: '', projectType: 'website' });
     } catch (error) {
       console.error('Error submitting message:', error);
-      alert('Erreur lors de l\'envoi du message. Veuillez réessayer.');
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Erreur lors de l'envoi du message. Veuillez réessayer.",
+      });
     } finally {
       setIsSubmitting(false);
     }
