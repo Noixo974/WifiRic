@@ -9,8 +9,10 @@ import { FAQ } from './components/FAQ';
 import { Contact } from './components/Contact';
 import { Profile } from './components/Profile';
 import { Admin } from './components/Admin';
+import { Install } from './components/Install';
 import { Footer } from './components/Footer';
 import { Toaster } from './components/ui/toaster';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -49,6 +51,8 @@ function App() {
         return <Profile onNavigateHome={() => setCurrentPage('home')} />;
       case 'admin':
         return <Admin onNavigateHome={() => setCurrentPage('home')} />;
+      case 'install':
+        return <Install onNavigateHome={() => setCurrentPage('home')} />;
       default:
         return <Hero onNavigateToServices={scrollToServices} />;
     }
@@ -73,6 +77,7 @@ function App() {
           </main>
           <Footer setCurrentPage={setCurrentPage} />
           <Toaster />
+          <PWAInstallPrompt />
         </div>
       </AuthProvider>
     </ThemeProvider>

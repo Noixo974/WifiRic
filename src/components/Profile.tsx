@@ -182,82 +182,82 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigateHome }) => {
   const avatarUrl = user.avatar_url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=128&h=128&fit=crop';
 
   return (
-    <section className="py-20">
+    <section className="py-12 md:py-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12">
+        <div className="mb-8 md:mb-12">
           <button
             onClick={onNavigateHome}
-            className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-8"
+            className="px-3 py-2 md:px-4 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4 md:mb-8"
           >
             ← Retour à l'accueil
           </button>
 
-          <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50">
-            <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
+          <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-5 md:p-8 border border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 mb-6 md:mb-8">
               <img
                 src={avatarUrl}
                 alt={user.username}
-                className="w-24 h-24 rounded-full border-4 border-[#9cd4e3]"
+                className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#9cd4e3]"
               />
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              <div className="text-center sm:text-left">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                   {user.username}
                 </h1>
-                <div className="space-y-1 text-gray-600 dark:text-gray-300">
-                  <p className="flex items-center gap-2">
+                <div className="space-y-1 text-sm md:text-base text-gray-600 dark:text-gray-300">
+                  <p className="flex items-center justify-center sm:justify-start gap-2">
                     <Mail className="w-4 h-4" />
                     {user.email}
                   </p>
-                  <p className="flex items-center gap-2">
+                  <p className="flex items-center justify-center sm:justify-start gap-2">
                     <UserIcon className="w-4 h-4" />
                     ID Discord: {user.discord_id}
                   </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Section Préférences Discord */}
+            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4">
+                Préférences Discord
+              </h2>
+              
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 md:p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm md:text-base text-gray-900 dark:text-white mb-1">
+                    Rejoindre automatiquement le serveur Discord
+                  </h3>
+                  <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                    Lorsque activé, vous rejoindrez automatiquement notre serveur Discord lors de la connexion.
+                  </p>
+                </div>
+                
+                <button
+                  onClick={handleToggleAutoJoin}
+                  disabled={isUpdatingPreference}
+                  className={`
+                    relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0
+                    ${autoJoinDiscord ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500' : 'bg-gray-300 dark:bg-gray-600'}
+                    ${isUpdatingPreference ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                  `}
+                >
+                  <span
+                    className={`
+                      inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                      ${autoJoinDiscord ? 'translate-x-6' : 'translate-x-1'}
+                    `}
+                  />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Section Préférences Discord */}
-        <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Préférences Discord
-          </h2>
-          
-          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-            <div className="flex-1 mr-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                Rejoindre automatiquement le serveur Discord
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Lorsque activé, vous rejoindrez automatiquement notre serveur Discord lors de la connexion ou de l'envoi d'un message.
-              </p>
-            </div>
-            
-            <button
-              onClick={handleToggleAutoJoin}
-              disabled={isUpdatingPreference}
-              className={`
-                relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0
-                ${autoJoinDiscord ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500' : 'bg-gray-300 dark:bg-gray-600'}
-                ${isUpdatingPreference ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-              `}
-            >
-              <span
-                className={`
-                  inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                  ${autoJoinDiscord ? 'translate-x-6' : 'translate-x-1'}
-                `}
-              />
-            </button>
-          </div>
-        </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-8">
+        <div className="space-y-6 md:space-y-8">
           <div>
-            <div className="flex items-center gap-2 mb-6">
-              <MessageSquare className="w-6 h-6 text-[#9cd4e3]" />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="flex items-center gap-2 mb-4 md:mb-6">
+              <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-[#9cd4e3]" />
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 Vos messages ({messages.length})
               </h2>
             </div>
@@ -276,11 +276,11 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigateHome }) => {
               </div>
             ) : (
               <>
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {currentMessages.map((message) => (
                   <div
                     key={message.id}
-                    className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50 hover:border-[#9cd4e3]/30 transition-all duration-300 hover:shadow-lg"
+                    className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-gray-200/50 dark:border-gray-700/50 hover:border-[#9cd4e3]/30 transition-all duration-300 hover:shadow-lg"
                   >
                     <div className="flex justify-between items-start gap-4 mb-4">
                       <div className="flex-1">

@@ -32,6 +32,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
     { id: 'about', label: 'À propos' },
     { id: 'faq', label: 'FAQ' },
     { id: 'contact', label: 'Contact' },
+    { id: 'install', label: 'Installer' },
   ];
 
   return (

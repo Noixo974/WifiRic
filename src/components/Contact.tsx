@@ -183,23 +183,23 @@ export const Contact: React.FC = () => {
   }
 
   return (
-    <section className="py-20">
+    <section className="py-12 md:py-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+        <div className="text-center mb-8 md:mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
             <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
               Contactez-Nous
             </span>
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
+          <p className="text-base md:text-xl text-gray-600 dark:text-gray-300">
             Prêt à démarrer votre projet ? Nous sommes là pour vous accompagner
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12">
           {/* Contact Options */}
-          <div className="space-y-8">
-            <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50">
+          <div className="space-y-4 md:space-y-8">
+            <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-5 md:p-8 border border-gray-200/50 dark:border-gray-700/50">
               <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
                 Méthodes de Contact
               </h3>
@@ -241,8 +241,8 @@ export const Contact: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-[#9cd4e3]/10 to-blue-500/10 dark:from-[#9cd4e3]/5 dark:to-blue-500/5 rounded-2xl p-8 backdrop-blur-sm border border-[#9cd4e3]/20 hover:border-[#9cd4e3]/30 transition-all duration-300">
-              <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 bg-clip-text text-transparent">
+            <div className="bg-gradient-to-r from-[#9cd4e3]/10 to-blue-500/10 dark:from-[#9cd4e3]/5 dark:to-blue-500/5 rounded-2xl p-5 md:p-8 backdrop-blur-sm border border-[#9cd4e3]/20 hover:border-[#9cd4e3]/30 transition-all duration-300">
+              <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 bg-clip-text text-transparent">
                 Pourquoi choisir WifiRic ?
               </h3>
               <ul className="space-y-3 text-gray-600 dark:text-gray-300">
@@ -274,7 +274,7 @@ export const Contact: React.FC = () => {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-[#9cd4e3]/30 transition-all duration-300 hover:shadow-lg">
+          <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-5 md:p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-[#9cd4e3]/30 transition-all duration-300 hover:shadow-lg">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

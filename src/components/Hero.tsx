@@ -60,7 +60,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
       .from('reviews')
       .select(`
         *,
-        profiles!inner(username, avatar_url)
+        profiles(username, avatar_url)
       `)
       .order('created_at', { ascending: false });
       
@@ -82,11 +82,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
     let filtered = [...data];
     
     if (rating !== null) {
-      if (rating === 4) {
-        filtered = filtered.filter(r => r.rating >= 4);
-      } else {
-        filtered = filtered.filter(r => r.rating === rating);
-      }
+      filtered = filtered.filter(r => r.rating === rating);
     }
     
     if (projectType !== null) {
@@ -238,11 +234,11 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
   return (
     <div className="relative">
       {/* Section Hero */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 md:pt-0">
         <div className="absolute inset-0 bg-gradient-to-br from-white via-[#9cd4e3]/10 to-blue-100/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-gray-800"></div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 items-center min-h-[80vh]">
             {/* Contenu à gauche */}
             <div 
               className={`transform transition-all duration-700 ${
@@ -250,7 +246,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
               }`}
               style={{ transitionDelay: '100ms' }}
             >
-              <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight text-left">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-4 md:mb-6 leading-tight text-left">
                 <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
                   WifiRic
                 </span>
@@ -260,39 +256,39 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                 </span>
               </h1>
               
-              <div className="h-16 flex items-center mb-8">
-                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 font-light transition-all duration-300">
+              <div className="h-12 md:h-16 flex items-center mb-4 md:mb-8">
+                <p className="text-base sm:text-lg md:text-2xl text-gray-600 dark:text-gray-300 font-light transition-all duration-300">
                   {texts[currentText]}
                 </p>
               </div>
               
-              <p className="text-lg text-gray-500 dark:text-gray-400 mb-12 leading-relaxed text-left">
+              <p className="text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-400 mb-6 md:mb-12 leading-relaxed text-left">
                 Nous créons des sites internet ou bots discord selon vos besoins !  <br></br>
                 Des sites web modernes ou anciens aux bots Discord complexes, nous transformons vos idées en réalité.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-6 justify-start">
+              <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-start">
                 <a
                   href="https://discord.gg/9mKPA3kHBA"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative px-8 py-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#9cd4e3]/50 hover:scale-105 active:scale-95"
+                  className="group relative px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#9cd4e3]/50 hover:scale-105 active:scale-95 text-sm md:text-base"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-[#9cd4e3] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <span className="relative flex items-center justify-center space-x-2">
                     <span>Rejoindre notre Discord</span>
-                    <ExternalLink className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+                    <ExternalLink className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
                   </span>
                 </a>
 
                 <button
                   onClick={onNavigateToServices}
-                  className="group relative px-8 py-4 border-2 border-[#9cd4e3] text-[#9cd4e3] font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#9cd4e3]/30 hover:scale-105 active:scale-95"
+                  className="group relative px-6 py-3 md:px-8 md:py-4 border-2 border-[#9cd4e3] text-[#9cd4e3] font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#9cd4e3]/30 hover:scale-105 active:scale-95 text-sm md:text-base"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-[#9cd4e3] to-blue-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                   <span className="relative flex items-center justify-center space-x-2 group-hover:text-white transition-colors duration-300">
                     <span>Découvrir nos services</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform duration-300" />
                   </span>
                 </button>
               </div>
@@ -309,7 +305,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                 <img 
                   src="https://i.ibb.co/dxm3TCb/Logo.png" 
                   alt="WifiRic Logo" 
-                  className="h-64 md:h-80 lg:h-96 transition-all duration-300 filter drop-shadow-2xl animate-float"
+                  className="h-48 sm:h-64 md:h-80 lg:h-96 transition-all duration-300 filter drop-shadow-2xl animate-float"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#9cd4e3]/20 to-blue-500/20 rounded-full blur-3xl animate-pulse-glow"></div>
               </div>
@@ -319,42 +315,42 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
       </section>
 
       {/* Section Nos Services */}
-      <section id="nos-services" className="py-20 bg-white dark:bg-gray-800 relative">
+      <section id="nos-services" className="py-12 md:py-20 bg-white dark:bg-gray-800 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div 
-            className={`text-left mb-16 transform transition-all duration-700 ${
+            className={`text-left mb-8 md:mb-16 transform transition-all duration-700 ${
               hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
             style={{ transitionDelay: '500ms' }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
               <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
                 Nos Services
               </span>
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl">
+            <p className="text-base md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl">
               Des solutions digitales complètes pour transformer votre présence en ligne
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {services.map((service, index) => (
               <div
                 key={index}
-                className={`group relative bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-600/50 hover:border-[#9cd4e3]/50 transition-all duration-700 hover:shadow-xl hover:-translate-y-2 ${
+                className={`group relative bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm rounded-2xl p-5 md:p-8 border border-gray-200/50 dark:border-gray-600/50 hover:border-[#9cd4e3]/50 transition-all duration-700 hover:shadow-xl hover:-translate-y-2 ${
                   hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
                 }`}
                 style={{ transitionDelay: `${700 + index * 150}ms` }}
               >
-                <div className={`inline-flex p-4 bg-gradient-to-r ${service.gradient} rounded-xl mb-6 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                  <service.icon className="w-8 h-8 text-white" />
+                <div className={`inline-flex p-3 md:p-4 bg-gradient-to-r ${service.gradient} rounded-xl mb-4 md:mb-6 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                  <service.icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
                 </div>
                 
-                <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white group-hover:text-[#9cd4e3] transition-colors">
+                <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4 text-gray-800 dark:text-white group-hover:text-[#9cd4e3] transition-colors">
                   {service.title}
                 </h3>
                 
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                   {service.description}
                 </p>
               </div>
@@ -364,28 +360,28 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
       </section>
 
       {/* Section Nos Avis */}
-      <section className="py-20 bg-gray-100 dark:bg-gray-700 relative">
+      <section className="py-12 md:py-20 bg-gray-100 dark:bg-gray-700 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div 
-            className={`text-left mb-8 transform transition-all duration-700 ${
+            className={`text-left mb-6 md:mb-8 transform transition-all duration-700 ${
               hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
             style={{ transitionDelay: '1300ms' }}
           >
-            <div className="flex items-center gap-4 flex-wrap">
-              <h2 className="text-4xl md:text-5xl font-bold">
+            <div className="flex items-center gap-2 md:gap-4 flex-wrap">
+              <h2 className="text-3xl md:text-5xl font-bold">
                 <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
                   Nos Avis
                 </span>
               </h2>
               
               {totalReviews > 0 && (
-                <div className="flex items-center gap-2 group relative">
+                <div className="flex items-center gap-1 md:gap-2 group relative">
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`w-6 h-6 ${
+                        className={`w-4 h-4 md:w-6 md:h-6 ${
                           star <= Math.round(averageRating)
                             ? 'text-yellow-400 fill-current'
                             : 'text-gray-300 dark:text-gray-600'
@@ -394,7 +390,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                     ))}
                   </div>
                   
-                  <span className="text-gray-600 dark:text-gray-300 font-semibold">
+                  <span className="text-sm md:text-base text-gray-600 dark:text-gray-300 font-semibold">
                     ({totalReviews})
                   </span>
                   
@@ -405,7 +401,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
               )}
             </div>
             
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mt-4">
+            <p className="text-base md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mt-2 md:mt-4">
               Ce que nos clients disent de notre travail
             </p>
           </div>
@@ -413,16 +409,16 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
           {/* Filters Section */}
           {allReviews.length > 0 && (
             <div 
-              className={`mb-8 transform transition-all duration-700 ${
+              className={`mb-6 md:mb-8 transform transition-all duration-700 ${
                 hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
               }`}
               style={{ transitionDelay: '1500ms' }}
             >
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-600 hover:border-[#9cd4e3]"
+                className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-600 hover:border-[#9cd4e3] text-sm md:text-base"
               >
-                <Filter className="w-5 h-5 text-[#9cd4e3]" />
+                <Filter className="w-4 h-4 md:w-5 md:h-5 text-[#9cd4e3]" />
                 <span className="font-semibold text-gray-700 dark:text-gray-200">
                   Filtres
                 </span>
@@ -434,15 +430,15 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
               </button>
 
               {showFilters && (
-                <div className="mt-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 animate-fade-in">
-                  <div className="flex flex-col lg:flex-row gap-6">
+                <div className="mt-4 p-4 md:p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 animate-fade-in">
+                  <div className="flex flex-col gap-4 md:gap-6">
                     {/* Rating Filters */}
                     <div className="flex-1">
                       <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
                         <Star className="w-4 h-4 text-yellow-400" />
                         Note
                       </h3>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                         <button
                           onClick={() => handleRatingFilter(null)}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
@@ -453,36 +449,19 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                         >
                           Toutes
                         </button>
-                        <button
-                          onClick={() => handleRatingFilter(5)}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 ${
-                            selectedRating === 5
-                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
-                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                          }`}
-                        >
-                          5 <Star className="w-4 h-4 fill-current" />
-                        </button>
-                        <button
-                          onClick={() => handleRatingFilter(4)}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 ${
-                            selectedRating === 4
-                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
-                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                          }`}
-                        >
-                          4+ <Star className="w-4 h-4 fill-current" />
-                        </button>
-                        <button
-                          onClick={() => handleRatingFilter(3)}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 ${
-                            selectedRating === 3
-                              ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
-                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                          }`}
-                        >
-                          3 <Star className="w-4 h-4 fill-current" />
-                        </button>
+                        {[5, 4, 3, 2, 1].map((rating) => (
+                          <button
+                            key={rating}
+                            onClick={() => handleRatingFilter(rating)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 ${
+                              selectedRating === rating
+                                ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                            }`}
+                          >
+                            {rating} <Star className="w-4 h-4 fill-current" />
+                          </button>
+                        ))}
                       </div>
                     </div>
 
@@ -514,9 +493,9 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                           Sites Web
                         </button>
                         <button
-                          onClick={() => handleProjectTypeFilter('Bots Discord')}
+                          onClick={() => handleProjectTypeFilter('Bot Discord')}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                            selectedProjectType === 'Bots Discord'
+                            selectedProjectType === 'Bot Discord'
                               ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
@@ -524,14 +503,14 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                           Bots Discord
                         </button>
                         <button
-                          onClick={() => handleProjectTypeFilter('Design')}
+                          onClick={() => handleProjectTypeFilter('Autre')}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                            selectedProjectType === 'Design'
+                            selectedProjectType === 'Autre'
                               ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
                         >
-                          Design
+                          Autre
                         </button>
                       </div>
                     </div>
@@ -585,10 +564,10 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                     goToPreviousReviews();
                     setIsAutoScrolling(false);
                   }}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-6 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-gray-200 dark:border-gray-600 hover:border-[#9cd4e3] hover:bg-gradient-to-r hover:from-[#9cd4e3]/10 hover:to-blue-500/10"
+                  className="absolute left-1 md:left-0 top-1/2 -translate-y-1/2 md:-translate-x-4 lg:-translate-x-6 z-10 bg-white dark:bg-gray-800 p-2 md:p-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-gray-200 dark:border-gray-600 hover:border-[#9cd4e3] hover:bg-gradient-to-r hover:from-[#9cd4e3]/10 hover:to-blue-500/10"
                   aria-label="Avis précédents"
                 >
-                  <ChevronLeft className="w-6 h-6 text-[#9cd4e3]" />
+                  <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-[#9cd4e3]" />
                 </button>
               )}
               
@@ -607,43 +586,43 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                   {[...reviews, ...reviews.slice(0, visibleCount)].map((review, idx) => (
                     <div
                       key={`${review.id}-${idx}`}
-                      className="flex-shrink-0 px-4"
+                      className="flex-shrink-0 px-2 md:px-4"
                       style={{ width: `${100 / visibleCount}%` }}
                     >
-                      <div className="group relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-200/50 dark:border-gray-600/50 hover:border-[#9cd4e3]/50 h-full animate-fade-in">
+                      <div className="group relative bg-white dark:bg-gray-800 rounded-2xl p-4 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-200/50 dark:border-gray-600/50 hover:border-[#9cd4e3]/50 h-full animate-fade-in">
                         <div className="absolute top-6 right-6 text-[#9cd4e3] opacity-20 group-hover:opacity-40 group-hover:rotate-12 transition-all duration-300">
                           <Quote className="w-8 h-8" />
                         </div>
                         
-                        <div className="flex items-center mb-6">
+                        <div className="flex items-center mb-4 md:mb-6">
                           <img
                             src={review.profiles?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + review.profiles?.username}
                             alt={review.profiles?.username || 'User'}
-                            className="w-16 h-16 rounded-full object-cover mr-4 ring-2 ring-[#9cd4e3]/20 group-hover:ring-4 group-hover:ring-[#9cd4e3]/40 transition-all duration-300"
+                            className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover mr-3 md:mr-4 ring-2 ring-[#9cd4e3]/20 group-hover:ring-4 group-hover:ring-[#9cd4e3]/40 transition-all duration-300"
                           />
                           <div>
-                            <h4 className="font-bold text-gray-800 dark:text-white">
+                            <h4 className="font-bold text-sm md:text-base text-gray-800 dark:text-white">
                               {review.profiles?.username || 'Utilisateur'}
                             </h4>
                             {review.project_type && (
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                              <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
                                 {review.project_type}
                               </p>
                             )}
                           </div>
                         </div>
                         
-                        <div className="flex mb-4">
+                        <div className="flex mb-3 md:mb-4">
                           {[...Array(review.rating)].map((_, i) => (
-                            <Star key={i} className="w-5 h-5 text-yellow-400 fill-current group-hover:scale-110 transition-transform duration-200" style={{ transitionDelay: `${i * 50}ms` }} />
+                            <Star key={i} className="w-4 h-4 md:w-5 md:h-5 text-yellow-400 fill-current group-hover:scale-110 transition-transform duration-200" style={{ transitionDelay: `${i * 50}ms` }} />
                           ))}
                         </div>
                         
-                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">
+                        <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed italic line-clamp-4 md:line-clamp-none">
                           "{review.content}"
                         </p>
                         
-                        <p className="text-xs text-gray-400 mt-4">
+                        <p className="text-xs text-gray-400 mt-3 md:mt-4">
                           {new Date(review.created_at).toLocaleDateString('fr-FR', {
                             year: 'numeric',
                             month: 'long',
@@ -662,10 +641,10 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                     goToNextReviews();
                     setIsAutoScrolling(false);
                   }}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-6 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-gray-200 dark:border-gray-600 hover:border-[#9cd4e3] hover:bg-gradient-to-r hover:from-[#9cd4e3]/10 hover:to-blue-500/10"
+                  className="absolute right-1 md:right-0 top-1/2 -translate-y-1/2 md:translate-x-4 lg:translate-x-6 z-10 bg-white dark:bg-gray-800 p-2 md:p-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-gray-200 dark:border-gray-600 hover:border-[#9cd4e3] hover:bg-gradient-to-r hover:from-[#9cd4e3]/10 hover:to-blue-500/10"
                   aria-label="Avis suivants"
                 >
-                  <ChevronRight className="w-6 h-6 text-[#9cd4e3]" />
+                  <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-[#9cd4e3]" />
                 </button>
               )}
 
@@ -695,20 +674,20 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
       </section>
 
       {/* Section Poster un avis */}
-      <section className="py-16 bg-white dark:bg-gray-800 relative">
+      <section className="py-10 md:py-16 bg-white dark:bg-gray-800 relative">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div 
-            className={`text-center mb-10 transform transition-all duration-700 ${
+            className={`text-center mb-6 md:mb-10 transform transition-all duration-700 ${
               hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
             style={{ transitionDelay: '1900ms' }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">
               <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
                 Partagez votre expérience
               </span>
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className="text-sm md:text-lg text-gray-600 dark:text-gray-300">
               Vous avez travaillé avec nous ? Laissez-nous votre avis !
             </p>
           </div>
