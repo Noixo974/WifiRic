@@ -3,9 +3,11 @@ import { Send, MessageSquare, Mail, ExternalLink, ChevronDown } from 'lucide-rea
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { toast } from '../hooks/use-toast';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const Contact: React.FC = () => {
   const { user, session, signInWithDiscord } = useAuth();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,10 +22,10 @@ export const Contact: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const projectTypes = [
-    { value: 'website', label: 'Site Internet', emoji: '🌐' },
-    { value: 'discord-bot', label: 'Bot Discord', emoji: '🤖' },
-    { value: 'both', label: 'Les deux', emoji: '✨' },
-    { value: 'other', label: 'Autre', emoji: '💡' }
+    { value: 'website', label: t('contact.form.website'), emoji: '🌐' },
+    { value: 'discord-bot', label: t('contact.form.discord_bot'), emoji: '🤖' },
+    { value: 'both', label: t('contact.form.both'), emoji: '✨' },
+    { value: 'other', label: t('contact.form.other'), emoji: '💡' }
   ];
 
   useEffect(() => {
@@ -40,11 +42,11 @@ export const Contact: React.FC = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.name.trim()) newErrors.name = 'Le nom est requis';
-    if (!formData.email.trim()) newErrors.email = 'L\'email est requis';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email invalide';
-    if (!formData.subject.trim()) newErrors.subject = 'Le sujet est requis';
-    if (!formData.message.trim()) newErrors.message = 'Le message est requis';
+    if (!formData.name.trim()) newErrors.name = t('contact.validation.name');
+    if (!formData.email.trim()) newErrors.email = t('contact.validation.email');
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = t('contact.validation.email_invalid');
+    if (!formData.subject.trim()) newErrors.subject = t('contact.validation.subject');
+    if (!formData.message.trim()) newErrors.message = t('contact.validation.message');
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -124,8 +126,8 @@ export const Contact: React.FC = () => {
 
       // Show success toast
       toast({
-        title: "Demande envoyée avec succès !",
-        description: "Nous vous répondrons dans les 48h sur notre Discord : WifiRic",
+        title: t('contact.form.success'),
+        description: t('contact.form.success_desc'),
       });
       
       setFormData({ name: '', email: '', subject: '', message: '', projectType: 'website' });
@@ -133,8 +135,8 @@ export const Contact: React.FC = () => {
       console.error('Error submitting message:', error);
       toast({
         variant: "destructive",
-        title: "Erreur",
-        description: "Erreur lors de l'envoi du message. Veuillez réessayer.",
+        title: t('contact.form.error'),
+        description: t('contact.form.error_desc'),
       });
     } finally {
       setIsSubmitting(false);
@@ -155,26 +157,26 @@ export const Contact: React.FC = () => {
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
-                Connexion Requise
+                {t('contact.login_required')}
               </span>
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Veuillez vous connecter avec votre compte Discord pour envoyer un message
+              {t('contact.login_desc')}
             </p>
             <button
               onClick={() => signInWithDiscord()}
               className="group relative bg-gradient-to-r from-[#5865F2] to-[#4752C4] text-white font-semibold py-4 px-8 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#5865F2]/50 hover:scale-[1.02] active:scale-[0.98] inline-flex items-center space-x-3"
             >
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.211.375-.445.864-.608 1.25a18.27 18.27 0 00-5.487 0c-.163-.386-.397-.875-.609-1.25a.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.08.08 0 00.087-.027c.461-.63.873-1.295 1.226-1.994a.076.076 0 00-.042-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.294.075.075 0 01.078-.01c3.928 1.793 8.18 1.793 12.062 0a.075.075 0 01.079.009c.12.098.246.198.373.295a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.699.772 1.365 1.225 1.994a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-4.467.151-8.35-.885-12.467a.07.07 0 00-.031-.028zM8.02 15.33c-1.183 0-2.157-.965-2.157-2.156 0-1.193.931-2.157 2.157-2.157 1.226 0 2.157.964 2.157 2.157 0 1.191-.931 2.157-2.157 2.157zm7.975 0c-1.183 0-2.157-.965-2.157-2.156 0-1.193.931-2.157 2.157-2.157 1.226 0 2.157.964 2.157 2.157 0 1.191-.931 2.157-2.157 2.157z" />
-              </svg>
-              <span>Connexion avec Discord</span>
-            </button>
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.211.375-.445.864-.608 1.25a18.27 18.27 0 00-5.487 0c-.163-.386-.397-.875-.609-1.25a.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.08.08 0 00.087-.027c.461-.63.873-1.295 1.226-1.994a.076.076 0 00-.042-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.294.075.075 0 01.078-.01c3.928 1.793 8.18 1.793 12.062 0a.075.075 0 01.079.009c.12.098.246.198.373.295a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.699.772 1.365 1.225 1.994a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-4.467.151-8.35-.885-12.467a.07.07 0 00-.031-.028zM8.02 15.33c-1.183 0-2.157-.965-2.157-2.156 0-1.193.931-2.157 2.157-2.157 1.226 0 2.157.964 2.157 2.157 0 1.191-.931 2.157-2.157 2.157zm7.975 0c-1.183 0-2.157-.965-2.157-2.156 0-1.193.931-2.157 2.157-2.157 1.226 0 2.157.964 2.157 2.157 0 1.191-.931 2.157-2.157 2.157z" />
+                </svg>
+                <span>{t('contact.login_button')}</span>
+              </button>
             <button
               onClick={() => setShowLoginPrompt(false)}
               className="ml-4 px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
-              Retour
+              {t('contact.back')}
             </button>
           </div>
         </div>
@@ -188,11 +190,11 @@ export const Contact: React.FC = () => {
         <div className="text-center mb-8 md:mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
             <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
-              Contactez-Nous
+              {t('contact.title')}
             </span>
           </h2>
           <p className="text-base md:text-xl text-gray-600 dark:text-gray-300">
-            Prêt à démarrer votre projet ? Nous sommes là pour vous accompagner
+            {t('contact.subtitle')}
           </p>
         </div>
 
@@ -201,7 +203,7 @@ export const Contact: React.FC = () => {
           <div className="space-y-4 md:space-y-8">
             <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-5 md:p-8 border border-gray-200/50 dark:border-gray-700/50">
               <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
-                Méthodes de Contact
+                {t('contact.methods')}
               </h3>
               
               <div className="space-y-6">
@@ -217,10 +219,10 @@ export const Contact: React.FC = () => {
                   </div>
                   <div className="relative flex-1">
                     <h4 className="font-semibold text-gray-800 dark:text-white transition-colors">
-                      Discord (Recommandé)
+                      {t('contact.discord_recommended')}
                     </h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Rejoignez notre serveur pour un support instantané
+                      {t('contact.discord_desc')}
                     </p>
                   </div>
                   <ExternalLink className="relative w-5 h-5 text-gray-400 group-hover:text-[#9cd4e3] transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
@@ -232,9 +234,9 @@ export const Contact: React.FC = () => {
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-800 dark:text-white">Email</h4>
+                    <h4 className="font-semibold text-gray-800 dark:text-white">{t('contact.email')}</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Utilisez le formulaire ci-contre
+                      {t('contact.email_desc')}
                     </p>
                   </div>
                 </div>
@@ -243,31 +245,31 @@ export const Contact: React.FC = () => {
 
             <div className="bg-gradient-to-r from-[#9cd4e3]/10 to-blue-500/10 dark:from-[#9cd4e3]/5 dark:to-blue-500/5 rounded-2xl p-5 md:p-8 backdrop-blur-sm border border-[#9cd4e3]/20 hover:border-[#9cd4e3]/30 transition-all duration-300">
               <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 bg-clip-text text-transparent">
-                Pourquoi choisir WifiRic ?
+                {t('contact.why_choose')}
               </h3>
               <ul className="space-y-3 text-gray-600 dark:text-gray-300">
                 <li className="flex items-center transition-colors duration-300">
                   <div className="w-2 h-2 bg-[#9cd4e3] rounded-full mr-3"></div>
-                  Support réactif et personnalisé
+                  {t('contact.benefit1')}
                 </li>
                 <li className="flex items-center transition-colors duration-300">
                   <div className="w-2 h-2 bg-[#9cd4e3] rounded-full mr-3"></div>
-                  Technologies de pointe
+                  {t('contact.benefit2')}
                 </li>
                 <li className="flex items-center transition-colors duration-300">
                   <div className="w-2 h-2 bg-[#9cd4e3] rounded-full mr-3"></div>
-                  Satisfaction client garantie
+                  {t('contact.benefit3')}
                 </li>
                 <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 bg-clip-text text-transparent">
-                Tarifs ?
+                {t('contact.pricing')}
               </h3>
                                 <li className="flex items-center transition-colors duration-300">
                   <div className="w-2 h-2 bg-[#9cd4e3] rounded-full mr-3"></div>
-                  Le devis de votre Site Internet/Bot Discord sera gratuit.
+                  {t('contact.pricing1')}
                 </li>
                                                <li className="flex items-center transition-colors duration-300">
                   <div className="w-2 h-2 bg-[#9cd4e3] rounded-full mr-3"></div>
-                  En fonction de votre demande, le tarif sera adapté.
+                  {t('contact.pricing2')}
                 </li>
               </ul>
             </div>
@@ -279,7 +281,7 @@ export const Contact: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Nom *
+                    {t('contact.form.name')} *
                   </label>
                   <input
                     type="text"
@@ -287,14 +289,14 @@ export const Contact: React.FC = () => {
                     value={formData.name}
                     onChange={handleChange}
                     className={`w-full px-4 py-3 bg-white/70 dark:bg-gray-700/70 border rounded-lg focus:ring-2 focus:ring-[#9cd4e3] focus:border-transparent outline-none transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-700/80 ${errors.name ? 'border-red-400' : 'border-gray-200 dark:border-gray-600'}`}
-                    placeholder="Votre nom"
+                    placeholder={t('contact.form.name')}
                   />
                   {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Email *
+                    {t('contact.form.email')} *
                   </label>
                   <input
                     type="email"
@@ -310,7 +312,7 @@ export const Contact: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Type de projet
+                  {t('contact.form.project_type')}
                 </label>
                 <div className="relative" ref={dropdownRef}>
                   <button
@@ -352,7 +354,7 @@ export const Contact: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Sujet *
+                  {t('contact.form.subject')} *
                 </label>
                 <input
                   type="text"
@@ -360,14 +362,14 @@ export const Contact: React.FC = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   className={`w-full px-4 py-3 bg-white/70 dark:bg-gray-700/70 border rounded-lg focus:ring-2 focus:ring-[#9cd4e3] focus:border-transparent outline-none transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-700/80 ${errors.subject ? 'border-red-400' : 'border-gray-200 dark:border-gray-600'}`}
-                  placeholder="Sujet de votre message"
+                  placeholder={t('contact.form.subject')}
                 />
                 {errors.subject && <p className="text-red-500 text-sm mt-1">{errors.subject}</p>}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Message *
+                  {t('contact.form.message')} *
                 </label>
                 <textarea
                   name="message"
@@ -375,7 +377,7 @@ export const Contact: React.FC = () => {
                   onChange={handleChange}
                   rows={6}
                   className={`w-full px-4 py-3 bg-white/70 dark:bg-gray-700/70 border rounded-lg focus:ring-2 focus:ring-[#9cd4e3] focus:border-transparent outline-none transition-all duration-300 resize-none hover:bg-white/80 dark:hover:bg-gray-700/80 ${errors.message ? 'border-red-400' : 'border-gray-200 dark:border-gray-600'}`}
-                  placeholder="Décrivez votre projet en détail..."
+                  placeholder={t('contact.form.message')}
                 />
                 {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
               </div>
@@ -391,7 +393,7 @@ export const Contact: React.FC = () => {
                 ) : (
                   <>
                     <Send className="relative w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
-                    <span className="relative">Envoyer le message</span>
+                    <span className="relative">{t('contact.form.submit')}</span>
                   </>
                 )}
               </button>

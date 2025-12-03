@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, ExternalLink, Code, Bot, Palette, Star, Quote, TrendingUp, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
+import { ArrowRight, ExternalLink, Code, Bot, Palette, Star, Quote, TrendingUp, ChevronLeft, ChevronRight, Filter, X, Languages } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ReviewForm } from './ReviewForm';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useToast } from '../hooks/use-toast';
 
 interface HeroProps {
   onNavigateToServices?: () => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
+  const { t, language } = useLanguage();
+  const { toast } = useToast();
   const [currentText, setCurrentText] = useState(0);
   const [reviews, setReviews] = useState<any[]>([]);
   const [allReviews, setAllReviews] = useState<any[]>([]);
@@ -21,36 +25,38 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
   const [selectedProjectType, setSelectedProjectType] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [translatedReviews, setTranslatedReviews] = useState<Record<string, string>>({});
+  const [translatingReviews, setTranslatingReviews] = useState<Record<string, boolean>>({});
   
   const texts = [
-    "Sites Internet adaptés à vos besoins et à vos moyens financiers",
-    "Bots Discord personnalisés selon vos besoins", 
-    "Expériences Digitales Uniques"
+    t('hero.text1'),
+    t('hero.text2'),
+    t('hero.text3')
   ];
 
   const services = [
     {
       icon: Code,
-      title: 'Sites Web',
-      description: 'Développement Full-Stack de sites internet (Front-End et Back-End).',
+      title: t('services.web.title'),
+      description: t('services.web.description'),
       gradient: 'from-blue-500 to-[#9cd4e3]'
     },
     {
       icon: Bot,
-      title: 'Bots Discord',
-      description: 'Création de bots Discord personnalisés pour automatiser et enrichir votre communauté.',
+      title: t('services.bot.title'),
+      description: t('services.bot.description'),
       gradient: 'from-[#9cd4e3] to-green-500'
     },
     {
       icon: Palette,
-      title: 'Design UI/UX',
-      description: 'Interfaces utilisateur élégantes avec animations et micro-interactions et site sécurisées et optimisées pour garantir une meilleur expèriences utilisateur',
+      title: t('services.design.title'),
+      description: t('services.design.description'),
       gradient: 'from-purple-500 to-[#9cd4e3]'
     },
     {
       icon: TrendingUp,
-      title: 'Coût',
-      description: 'Des tarifs adaptés à vos besoins, avec des prix avantageux pour tous vos projets..',
+      title: t('services.cost.title'),
+      description: t('services.cost.description'),
       gradient: 'from-[#9cd4e3] to-yellow-500'
     }
   ];
@@ -160,6 +166,37 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
     setTouchEnd(0);
   };
 
+  const translateReview = async (reviewId: string, originalContent: string) => {
+    setTranslatingReviews(prev => ({ ...prev, [reviewId]: true }));
+
+    try {
+      const { data, error } = await supabase.functions.invoke('translate-review', {
+        body: {
+          text: originalContent,
+          targetLanguage: language,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.translatedText) {
+        setTranslatedReviews(prev => ({
+          ...prev,
+          [reviewId]: data.translatedText,
+        }));
+      }
+    } catch (error: any) {
+      console.error('Translation error:', error);
+      toast({
+        title: t('reviews.translation_error') || 'Translation error',
+        description: error.message || 'Unable to translate review',
+        variant: 'destructive',
+      });
+    } finally {
+      setTranslatingReviews(prev => ({ ...prev, [reviewId]: false }));
+    }
+  };
+
   useEffect(() => {
     // Trigger cascade animation after a brief delay
     const loadTimeout = setTimeout(() => {
@@ -248,11 +285,11 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
             >
               <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-4 md:mb-6 leading-tight text-left">
                 <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
-                  WifiRic
+                  {t('hero.title')}
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-[#9cd4e3] to-blue-500 bg-clip-text text-transparent">
-                  Créateur Digital 
+                  {t('hero.subtitle')}
                 </span>
               </h1>
               
@@ -263,8 +300,8 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
               </div>
               
               <p className="text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-400 mb-6 md:mb-12 leading-relaxed text-left">
-                Nous créons des sites internet ou bots discord selon vos besoins !  <br></br>
-                Des sites web modernes ou anciens aux bots Discord complexes, nous transformons vos idées en réalité.
+                {t('hero.description')}  <br></br>
+                {t('hero.description2')}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-start">
@@ -276,7 +313,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-[#9cd4e3] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <span className="relative flex items-center justify-center space-x-2">
-                    <span>Rejoindre notre Discord</span>
+                    <span>{t('hero.discord_button')}</span>
                     <ExternalLink className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
                   </span>
                 </a>
@@ -287,7 +324,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-[#9cd4e3] to-blue-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                   <span className="relative flex items-center justify-center space-x-2 group-hover:text-white transition-colors duration-300">
-                    <span>Découvrir nos services</span>
+                    <span>{t('hero.services_button')}</span>
                     <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform duration-300" />
                   </span>
                 </button>
@@ -325,11 +362,11 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
               <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
-                Nos Services
+                {t('services.title')}
               </span>
             </h2>
             <p className="text-base md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl">
-              Des solutions digitales complètes pour transformer votre présence en ligne
+              {t('services.subtitle')}
             </p>
           </div>
 
@@ -371,7 +408,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
             <div className="flex items-center gap-2 md:gap-4 flex-wrap">
               <h2 className="text-3xl md:text-5xl font-bold">
                 <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
-                  Nos Avis
+                  {t('reviews.title')}
                 </span>
               </h2>
               
@@ -402,7 +439,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
             </div>
             
             <p className="text-base md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mt-2 md:mt-4">
-              Ce que nos clients disent de notre travail
+              {t('reviews.subtitle')}
             </p>
           </div>
 
@@ -420,7 +457,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
               >
                 <Filter className="w-4 h-4 md:w-5 md:h-5 text-[#9cd4e3]" />
                 <span className="font-semibold text-gray-700 dark:text-gray-200">
-                  Filtres
+                  {t('reviews.filters')}
                 </span>
                 {hasActiveFilters && (
                   <span className="ml-1 px-2 py-0.5 bg-[#9cd4e3] text-white text-xs rounded-full">
@@ -436,7 +473,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                     <div className="flex-1">
                       <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
                         <Star className="w-4 h-4 text-yellow-400" />
-                        Note
+                        {t('reviews.filter_rating')}
                       </h3>
                       <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                         <button
@@ -447,7 +484,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
                         >
-                          Toutes
+                          {t('reviews.filter_all')}
                         </button>
                         {[5, 4, 3, 2, 1].map((rating) => (
                           <button
@@ -469,7 +506,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                     <div className="flex-1">
                       <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
                         <Code className="w-4 h-4 text-[#9cd4e3]" />
-                        Type de projet
+                        {t('reviews.filter_type')}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         <button
@@ -480,37 +517,37 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
                         >
-                          Tous
+                          {t('reviews.all_types')}
                         </button>
                         <button
-                          onClick={() => handleProjectTypeFilter('Sites Web')}
+                          onClick={() => handleProjectTypeFilter(t('reviews.website'))}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                            selectedProjectType === 'Sites Web'
+                            selectedProjectType === t('reviews.website')
                               ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
                         >
-                          Sites Web
+                          {t('reviews.website')}
                         </button>
                         <button
-                          onClick={() => handleProjectTypeFilter('Bot Discord')}
+                          onClick={() => handleProjectTypeFilter(t('reviews.discord_bot'))}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                            selectedProjectType === 'Bot Discord'
+                            selectedProjectType === t('reviews.discord_bot')
                               ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
                         >
-                          Bot Discord
+                          {t('reviews.discord_bot')}
                         </button>
                         <button
-                          onClick={() => handleProjectTypeFilter('Autre')}
+                          onClick={() => handleProjectTypeFilter(t('reviews.other'))}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                            selectedProjectType === 'Autre'
+                            selectedProjectType === t('reviews.other')
                               ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
                         >
-                          Autre
+                          {t('reviews.other')}
                         </button>
                       </div>
                     </div>
@@ -524,7 +561,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                         className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-300"
                       >
                         <X className="w-4 h-4" />
-                        Réinitialiser les filtres
+                        {t('reviews.clear_filters')}
                       </button>
                     </div>
                   )}
@@ -546,7 +583,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
               style={{ transitionDelay: '1700ms' }}
             >
               <p className="text-lg text-gray-500 dark:text-gray-400">
-                Aucun avis pour le moment. Soyez le premier à partager votre expérience !
+                {t('reviews.no_reviews')} {t('reviews.be_first')}
               </p>
             </div>
           ) : (
@@ -619,16 +656,30 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                         </div>
                         
                         <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed italic line-clamp-4 md:line-clamp-none">
-                          "{review.content}"
+                          "{translatedReviews[review.id] || review.content}"
                         </p>
                         
-                        <p className="text-xs text-gray-400 mt-3 md:mt-4">
-                          {new Date(review.created_at).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </p>
+                        <div className="flex items-center justify-between mt-3 md:mt-4">
+                          <p className="text-xs text-gray-400">
+                            {new Date(review.created_at).toLocaleDateString('fr-FR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                          
+                          {!translatedReviews[review.id] && (
+                            <button
+                              onClick={() => translateReview(review.id, review.content)}
+                              disabled={translatingReviews[review.id]}
+                              className="flex items-center gap-1 px-2 py-1 text-xs text-[#9cd4e3] hover:text-blue-500 transition-colors duration-200 disabled:opacity-50"
+                              title={t('reviews.translate') || 'Translate'}
+                            >
+                              <Languages className="w-3 h-3" />
+                              {translatingReviews[review.id] ? '...' : t('reviews.translate') || 'Translate'}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -684,11 +735,11 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
           >
             <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">
               <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
-                Partagez votre expérience
+                {t('reviews.leave_review')}
               </span>
             </h2>
             <p className="text-sm md:text-lg text-gray-600 dark:text-gray-300">
-              Vous avez travaillé avec nous ? Laissez-nous votre avis !
+              {t('reviews.login_required')}
             </p>
           </div>
           

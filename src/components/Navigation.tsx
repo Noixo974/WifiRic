@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
+import { SettingsMenu } from './SettingsMenu';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { AuthModal } from './AuthModal';
 import { UserMenu } from './UserMenu';
 
@@ -17,6 +18,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isDark } = useTheme();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,11 +30,11 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
   }, []);
 
   const navItems = [
-    { id: 'home', label: 'Accueil' },
-    { id: 'about', label: 'À propos' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'contact', label: 'Contact' },
-    { id: 'install', label: 'Installer' },
+    { id: 'home', label: t('nav.home') },
+    { id: 'about', label: t('nav.about') },
+    { id: 'faq', label: t('nav.faq') },
+    { id: 'contact', label: t('nav.contact') },
+    { id: 'install', label: t('nav.install') },
   ];
 
   return (
@@ -65,7 +67,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
                 <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-300 ${currentPage === item.id ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
               </button>
             ))}
-            <ThemeToggle />
+            <SettingsMenu />
             {user ? (
               <UserMenu onProfileClick={() => setCurrentPage('profile')} onAdminClick={() => setCurrentPage('admin')} />
             ) : (
@@ -73,13 +75,13 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
                 onClick={() => setIsAuthModalOpen(true)}
                 className="px-4 py-2 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#9cd4e3]/50 transition-all duration-300 hover:scale-105 active:scale-95"
               >
-                Connexion
+                {t('nav.login')}
               </button>
             )}
           </div>
 
-          <div className="md:hidden flex items-center space-x-4">
-            <ThemeToggle />
+          <div className="md:hidden flex items-center space-x-2">
+            <SettingsMenu />
             {user ? (
               <UserMenu onProfileClick={() => setCurrentPage('profile')} onAdminClick={() => setCurrentPage('admin')} />
             ) : (
@@ -87,7 +89,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
                 onClick={() => setIsAuthModalOpen(true)}
                 className="px-3 py-2 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-lg text-sm hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95"
               >
-                Connexion
+                {t('nav.login')}
               </button>
             )}
             <button

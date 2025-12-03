@@ -1,34 +1,18 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { t } = useLanguage();
 
   const faqs = [
-    {
-      question: 'Quels types de sites web créez-vous ?',
-      answer: '//'
-    },
-    {
-      question: 'Combien coûte un site internet ou un bot Discord ?',
-      answer: '//'
-    },
-    {
-      question: 'Quel est le délai de réalisation ?',
-      answer: '//'
-    },
-    {
-      question: 'Proposez-vous de la maintenance ?',
-      answer: '//'
-    },
-    {
-      question: 'Comment fonctionnent la création de bots Discord ?',
-      answer: '//'
-    },
-    {
-      question: 'Acceptez-vous les paiements en plusieurs fois ?',
-      answer: '//'
-    }
+    { question: t('faq.q1'), answer: t('faq.a1') },
+    { question: t('faq.q2'), answer: t('faq.a2') },
+    { question: t('faq.q3'), answer: t('faq.a3') },
+    { question: t('faq.q4'), answer: t('faq.a4') },
+    { question: t('faq.q5'), answer: t('faq.a5') },
+    { question: t('faq.q6'), answer: t('faq.a6') }
   ];
 
   return (
@@ -37,11 +21,11 @@ export const FAQ: React.FC = () => {
         <div className="text-center mb-8 md:mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
             <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
-              Questions Fréquentes
+              {t('faq.title')}
             </span>
           </h2>
           <p className="text-base md:text-xl text-gray-600 dark:text-gray-300">
-            Trouvez rapidement les réponses à vos questions
+            {t('faq.subtitle')}
           </p>
         </div>
 
@@ -82,10 +66,10 @@ export const FAQ: React.FC = () => {
         <div className="mt-10 md:mt-16 text-center">
           <div className="bg-gradient-to-r from-[#9cd4e3]/10 to-blue-500/10 dark:from-[#9cd4e3]/5 dark:to-blue-500/5 rounded-2xl p-6 md:p-8 backdrop-blur-sm border border-[#9cd4e3]/20 hover:border-[#9cd4e3]/30 transition-all duration-300">
             <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-800 dark:text-white transition-colors duration-300">
-              Vous ne trouvez pas votre réponse ?
+              {t('faq.no_answer')}
             </h3>
             <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-4 md:mb-6 transition-colors duration-300">
-              Notre équipe est là pour répondre à toutes vos questions spécifiques
+              {t('faq.no_answer_subtitle')}
             </p>
             <a
               href="https://discord.gg/9mKPA3kHBA"
@@ -94,7 +78,7 @@ export const FAQ: React.FC = () => {
               className="group relative inline-flex items-center px-5 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#9cd4e3]/50 hover:scale-110 active:scale-95 text-sm md:text-base"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-[#9cd4e3] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span className="relative group-hover:tracking-wide transition-all duration-300">Contactez-nous sur Discord</span>
+              <span className="relative group-hover:tracking-wide transition-all duration-300">{t('faq.contact_discord')}</span>
             </a>
           </div>
         </div>

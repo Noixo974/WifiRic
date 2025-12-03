@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.add-user-to-discord-server]
 verify_jwt = true
+
+[functions.translate-review]
+verify_jwt = false

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Instagram, Facebook, Mail, MessageSquare } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface FooterProps {
   setCurrentPage: (page: string) => void;
@@ -8,12 +9,13 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ setCurrentPage }) => {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
 
   const quickLinks = [
-    { id: 'home', label: 'Accueil' },
-    { id: 'about', label: 'À propos' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'contact', label: 'Contact' },
+    { id: 'home', label: t('nav.home') },
+    { id: 'about', label: t('nav.about') },
+    { id: 'faq', label: t('nav.faq') },
+    { id: 'contact', label: t('nav.contact') },
   ];
 
   const socialLinks = [
@@ -24,9 +26,9 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentPage }) => {
   ];
 
   const legalLinks = [
-    { label: 'Support', action: () => setCurrentPage('contact') },
-    { label: 'Politique de confidentialité', action: () => {} },
-    { label: 'Conditions générales', action: () => {} },
+    { label: t('footer.support'), action: () => setCurrentPage('contact') },
+    { label: t('footer.privacy'), action: () => {} },
+    { label: t('footer.terms'), action: () => {} },
   ];
 
   return (
@@ -49,14 +51,13 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentPage }) => {
               </div>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-xs">
-              Création de sites internet modernes et de bots Discord personnalisés.
-              Nous transformons vos idées en expériences digitales exceptionnelles.
+              {t('footer.description')}
             </p>
           </div>
 
           <div className="space-y-4">
             <h3 className="text-lg font-bold bg-gradient-to-r from-[#9cd4e3] to-blue-500 bg-clip-text text-transparent">
-              Liens Rapides
+              {t('footer.quick_links')}
             </h3>
             <ul className="space-y-3">
               {quickLinks.map((link) => (
@@ -75,7 +76,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentPage }) => {
 
           <div className="space-y-4">
             <h3 className="text-lg font-bold bg-gradient-to-r from-[#9cd4e3] to-blue-500 bg-clip-text text-transparent">
-              Contact
+              {t('footer.contact')}
             </h3>
             <div className="flex flex-wrap gap-4">
               {socialLinks.map((social, index) => (
@@ -98,7 +99,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentPage }) => {
         <div className="pt-6 md:pt-8 border-t border-gray-200/50 dark:border-gray-700/50">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
             <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 text-center md:text-left">
-              Copyright &copy;2025 WifiRic. Conçu par Nathan & Aymeric
+              {t('footer.copyright')}
             </p>
             <div className="flex flex-wrap justify-center gap-4 md:gap-6">
               {legalLinks.map((link, index) => (

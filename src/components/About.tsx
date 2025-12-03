@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Code, Bot, Palette, TrendingUp } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const About: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -25,26 +27,26 @@ export const About: React.FC = () => {
   const features = [
     {
       icon: Code,
-      title: 'Développement Web',
-      description: 'Des sites web adaptés à vos besoins et à vos demandes, pour donner vie à tout ce que vous imaginez.',
+      title: t('about.web.title'),
+      description: t('about.web.description'),
       gradient: 'from-blue-500 to-[#9cd4e3]'
     },
     {
       icon: Bot,
-      title: 'Bots Discord',
-      description: 'Automatisation et fonctionnalités personnalisées pour votre communauté.',
+      title: t('about.bot.title'),
+      description: t('about.bot.description'),
       gradient: 'from-[#9cd4e3] to-green-500'
     },
     {
       icon: Palette,
-      title: 'Design Futuriste',
-      description: 'Interfaces utilisateur élégantes avec animations et micro-interactions et site sécurisées et optimisées pour garantir une meilleur expèriences utilisateur',
+      title: t('about.design.title'),
+      description: t('about.design.description'),
       gradient: 'from-purple-500 to-[#9cd4e3]'
     },
     {
       icon: TrendingUp,
-      title: 'Coût',
-      description: 'Des tarifs adaptés à vos besoins, avec des prix avantageux pour tous vos projets..',
+      title: t('about.cost.title'),
+      description: t('about.cost.description'),
       gradient: 'from-[#9cd4e3] to-yellow-500'
     }
   ];
@@ -55,12 +57,11 @@ export const About: React.FC = () => {
         <div className={`text-center mb-8 md:mb-16 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
             <span className="bg-gradient-to-r from-gray-800 via-[#9cd4e3] to-blue-600 dark:from-white dark:via-[#9cd4e3] dark:to-blue-400 bg-clip-text text-transparent">
-              WifiRic - Notre Vision
+              {t('about.title')}
             </span>
           </h2>
           <p className="text-base md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Chez WifiRic, nous repoussons les limites du développement pour créer des expériences 
-            exceptionnelles qui marquent l'avenir du web et des communautés Discord.
+            {t('about.subtitle')}
           </p>
         </div>
 
@@ -88,11 +89,10 @@ export const About: React.FC = () => {
         <div className={`mt-12 md:mt-20 text-center transform transition-all duration-500 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <div className="relative bg-gradient-to-r from-[#9cd4e3]/10 to-blue-500/10 dark:from-[#9cd4e3]/5 dark:to-blue-500/5 rounded-2xl p-6 md:p-12 backdrop-blur-sm border border-[#9cd4e3]/20 hover:border-[#9cd4e3]/30 transition-all duration-300">
             <h3 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-[#9cd4e3] to-blue-500 bg-clip-text text-transparent">
-              Prêt à transformer votre projet ?
+              {t('about.cta.title')}
             </h3>
             <p className="text-sm md:text-lg text-gray-600 dark:text-gray-300 mb-6 md:mb-8 transition-colors duration-300">
-              Rejoignez notre communauté Discord et découvrez comment nous pouvons vous aider 
-              à créer quelque chose d'extraordinaire.
+              {t('about.cta.subtitle')}
             </p>
             <a
               href="https://discord.gg/9mKPA3kHBA"
@@ -101,7 +101,7 @@ export const About: React.FC = () => {
               className="group relative inline-flex items-center px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#9cd4e3]/50 hover:scale-110 active:scale-95 text-sm md:text-base"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-[#9cd4e3] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span className="relative group-hover:tracking-wide transition-all duration-300">Démarrer maintenant</span>
+              <span className="relative group-hover:tracking-wide transition-all duration-300">{t('about.cta.button')}</span>
             </a>
           </div>
         </div>

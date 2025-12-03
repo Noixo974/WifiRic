@@ -4,12 +4,12 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthModal } from './AuthModal';
 import { useToast } from '../hooks/use-toast';
-
-const PROJECT_TYPES = ['Sites Web', 'Bot Discord', 'Autre'] as const;
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const ReviewForm: React.FC = () => {
   const { user, session } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [selectedRating, setSelectedRating] = useState(5);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -17,6 +17,8 @@ export const ReviewForm: React.FC = () => {
   const [projectType, setProjectType] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const PROJECT_TYPES = [t('reviews.website'), t('reviews.discord_bot'), t('reviews.other')];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,8 +30,8 @@ export const ReviewForm: React.FC = () => {
 
     if (!projectType) {
       toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner un type de projet",
+        title: t('reviews.no_reviews'),
+        description: t('reviews.filter_type'),
         variant: "destructive"
       });
       return;
@@ -37,8 +39,8 @@ export const ReviewForm: React.FC = () => {
 
     if (reviewContent.trim().length === 0) {
       toast({
-        title: "Erreur",
-        description: "Veuillez écrire un avis",
+        title: t('reviews.no_reviews'),
+        description: t('reviews.leave_review'),
         variant: "destructive"
       });
       return;
@@ -60,7 +62,7 @@ export const ReviewForm: React.FC = () => {
     if (error) {
       const isLimitError = error.message?.includes('limite de 10 avis');
       toast({
-        title: "Erreur",
+        title: t('reviews.no_reviews'),
         description: isLimitError 
           ? "Vous avez atteint la limite de 10 avis maximum" 
           : "Impossible de poster votre avis",
@@ -68,8 +70,8 @@ export const ReviewForm: React.FC = () => {
       });
     } else {
       toast({
-        title: "Avis posté !",
-        description: "Merci pour votre retour !"
+        title: t('hero.reviewSuccess'),
+        description: t('hero.reviewSuccessDesc')
       });
       setReviewContent('');
       setProjectType('');
@@ -83,20 +85,20 @@ export const ReviewForm: React.FC = () => {
         {!user ? (
           <div className="text-center py-8">
             <p className="text-lg text-muted-foreground mb-6">
-              Connectez-vous pour partager votre expérience
+              {t('reviews.login_required')}
             </p>
             <button
               onClick={() => setAuthModalOpen(true)}
               className="px-8 py-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300"
             >
-              Se connecter
+              {t('auth.discord_button')}
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-foreground mb-3">
-                Votre note
+                {t('hero.rating')}
               </label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -122,7 +124,7 @@ export const ReviewForm: React.FC = () => {
 
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">
-                Type de projet <span className="text-red-500">*</span>
+                {t('hero.projectType')} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <button
@@ -131,7 +133,7 @@ export const ReviewForm: React.FC = () => {
                   className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#9cd4e3] focus:border-transparent outline-none transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-600 text-left flex items-center justify-between"
                 >
                   <span className={projectType ? 'text-foreground' : 'text-muted-foreground'}>
-                    {projectType || 'Sélectionnez un type de projet'}
+                    {projectType || t('reviews.filter_type')}
                   </span>
                   <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -163,7 +165,7 @@ export const ReviewForm: React.FC = () => {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-sm font-semibold text-foreground">
-                  Votre avis <span className="text-red-500">*</span>
+                  {t('hero.yourReview')} <span className="text-red-500">*</span>
                 </label>
                 <span className={`text-sm ${
                   reviewContent.length > 500 ? 'text-destructive' : 'text-muted-foreground'
@@ -174,7 +176,7 @@ export const ReviewForm: React.FC = () => {
               <textarea
                 value={reviewContent}
                 onChange={(e) => setReviewContent(e.target.value)}
-                placeholder="Partagez votre expérience avec WifiRic..."
+                placeholder={t('hero.yourReview')}
                 maxLength={500}
                 rows={4}
                 className="w-full px-4 py-3 bg-white/70 dark:bg-gray-700/70 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#9cd4e3] focus:border-transparent outline-none transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-700/80 text-foreground placeholder:text-muted-foreground resize-none"
@@ -187,7 +189,7 @@ export const ReviewForm: React.FC = () => {
               disabled={isSubmitting || reviewContent.trim().length === 0 || !projectType}
               className="w-full px-8 py-4 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
             >
-              <span>{isSubmitting ? 'Envoi en cours...' : 'Publier mon avis'}</span>
+              <span>{isSubmitting ? t('hero.submitting') : t('hero.submit')}</span>
               <Send className="w-5 h-5" />
             </button>
           </form>
