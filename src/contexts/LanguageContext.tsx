@@ -39,6 +39,13 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.description2': 'Des sites web modernes ou anciens aux bots Discord complexes, nous transformons vos idées en réalité.',
     'hero.discord_button': 'Rejoindre notre Discord',
     'hero.services_button': 'Découvrir nos services',
+    'hero.rating': 'Note',
+    'hero.projectType': 'Type de projet',
+    'hero.yourReview': 'Votre avis',
+    'hero.submit': 'Envoyer',
+    'hero.submitting': 'Envoi en cours...',
+    'hero.reviewSuccess': 'Avis envoyé !',
+    'hero.reviewSuccessDesc': 'Merci pour votre avis',
     
     // Services
     'services.title': 'Nos Services',
@@ -237,6 +244,13 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.description2': 'From modern or classic websites to complex Discord bots, we turn your ideas into reality.',
     'hero.discord_button': 'Join our Discord',
     'hero.services_button': 'Discover our services',
+    'hero.rating': 'Rating',
+    'hero.projectType': 'Project type',
+    'hero.yourReview': 'Your review',
+    'hero.submit': 'Submit',
+    'hero.submitting': 'Submitting...',
+    'hero.reviewSuccess': 'Review submitted!',
+    'hero.reviewSuccessDesc': 'Thank you for your review',
     
     // Services
     'services.title': 'Our Services',
@@ -435,6 +449,13 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.description2': 'Desde sitios web modernos o clásicos hasta bots de Discord complejos, convertimos tus ideas en realidad.',
     'hero.discord_button': 'Únete a nuestro Discord',
     'hero.services_button': 'Descubrir nuestros servicios',
+    'hero.rating': 'Calificación',
+    'hero.projectType': 'Tipo de proyecto',
+    'hero.yourReview': 'Tu reseña',
+    'hero.submit': 'Enviar',
+    'hero.submitting': 'Enviando...',
+    'hero.reviewSuccess': '¡Reseña enviada!',
+    'hero.reviewSuccessDesc': 'Gracias por tu reseña',
     
     // Services
     'services.title': 'Nuestros Servicios',
@@ -633,6 +654,13 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.description2': 'Von modernen oder klassischen Websites bis hin zu komplexen Discord-Bots - wir verwandeln Ihre Ideen in Realität.',
     'hero.discord_button': 'Unserem Discord beitreten',
     'hero.services_button': 'Unsere Dienste entdecken',
+    'hero.rating': 'Bewertung',
+    'hero.projectType': 'Projekttyp',
+    'hero.yourReview': 'Ihre Bewertung',
+    'hero.submit': 'Absenden',
+    'hero.submitting': 'Wird gesendet...',
+    'hero.reviewSuccess': 'Bewertung gesendet!',
+    'hero.reviewSuccessDesc': 'Danke für Ihre Bewertung',
     
     // Services
     'services.title': 'Unsere Dienste',
@@ -831,6 +859,13 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.description2': 'De sites modernos ou clássicos a bots Discord complexos, transformamos suas ideias em realidade.',
     'hero.discord_button': 'Junte-se ao nosso Discord',
     'hero.services_button': 'Descobrir nossos serviços',
+    'hero.rating': 'Nota',
+    'hero.projectType': 'Tipo de projeto',
+    'hero.yourReview': 'Sua avaliação',
+    'hero.submit': 'Enviar',
+    'hero.submitting': 'Enviando...',
+    'hero.reviewSuccess': 'Avaliação enviada!',
+    'hero.reviewSuccessDesc': 'Obrigado pela sua avaliação',
     
     // Services
     'services.title': 'Nossos Serviços',

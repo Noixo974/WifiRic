@@ -61,28 +61,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
     }
   ];
 
-  const fetchReviews = async () => {
-    const { data, error } = await supabase
-      .from('reviews')
-      .select(`
-        *,
-        profiles(username, avatar_url)
-      `)
-      .order('created_at', { ascending: false });
-      
-    if (data && !error) {
-      setAllReviews(data);
-      setTotalReviews(data.length);
-      
-      if (data.length > 0) {
-        const avg = data.reduce((sum: number, r: any) => sum + r.rating, 0) / data.length;
-        setAverageRating(avg);
-      }
-      
-      // Apply filters
-      applyFilters(data, selectedRating, selectedProjectType);
-    }
-  };
+  // fetchReviews is inlined in useEffect to avoid stale closure issues
 
   const applyFilters = (data: any[], rating: number | null, projectType: string | null) => {
     let filtered = [...data];
@@ -214,7 +193,42 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
   }, []);
 
   useEffect(() => {
-    fetchReviews();
+    let isMounted = true;
+    let isFetching = false;
+    
+    const fetchWithDebounce = async () => {
+      if (isFetching || !isMounted) return;
+      isFetching = true;
+      
+      const { data, error } = await supabase
+        .from('reviews')
+        .select(`
+          *,
+          profiles(username, avatar_url)
+        `)
+        .order('created_at', { ascending: false });
+        
+      if (data && !error && isMounted) {
+        // Deduplicate by ID just in case
+        const uniqueReviews = data.filter((review: any, index: number, self: any[]) => 
+          index === self.findIndex((r: any) => r.id === review.id)
+        );
+        
+        setAllReviews(uniqueReviews);
+        setTotalReviews(uniqueReviews.length);
+        
+        if (uniqueReviews.length > 0) {
+          const avg = uniqueReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / uniqueReviews.length;
+          setAverageRating(avg);
+        }
+        
+        applyFilters(uniqueReviews, selectedRating, selectedProjectType);
+      }
+      
+      isFetching = false;
+    };
+    
+    fetchWithDebounce();
     
     const channel = supabase
       .channel('reviews-changes')
@@ -226,12 +240,14 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
           table: 'reviews'
         },
         () => {
-          fetchReviews();
+          // Small delay to avoid race conditions
+          setTimeout(() => fetchWithDebounce(), 300);
         }
       )
       .subscribe();
       
     return () => {
+      isMounted = false;
       supabase.removeChannel(channel);
     };
   }, []);
