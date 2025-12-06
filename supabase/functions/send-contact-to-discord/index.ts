@@ -7,9 +7,106 @@ const corsHeaders = {
 };
 
 const DISCORD_BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
-const DISCORD_CHANNEL_ID = '1439273217591087167';
+const DISCORD_CATEGORY_ID = '1368669111328051272';
 const SUPABASE_URL = "https://ohsxncrxdqbsuxwybrjp.supabase.co";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+function generateRandomId(): string {
+  return Math.floor(10000000 + Math.random() * 90000000).toString();
+}
+
+async function getGuildIdFromCategory(categoryId: string): Promise<string | null> {
+  const response = await fetch(
+    `https://discord.com/api/v10/channels/${categoryId}`,
+    {
+      headers: {
+        'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    console.error('Failed to get category info');
+    return null;
+  }
+
+  const category = await response.json();
+  return category.guild_id;
+}
+
+async function isUserInGuild(guildId: string, discordId: string): Promise<boolean> {
+  console.log(`Checking if user ${discordId} is in guild ${guildId}`);
+  
+  const response = await fetch(
+    `https://discord.com/api/v10/guilds/${guildId}/members/${discordId}`,
+    {
+      headers: {
+        'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
+      },
+    }
+  );
+
+  const isInGuild = response.ok;
+  console.log(`User ${discordId} is ${isInGuild ? '' : 'NOT '}in the guild`);
+  return isInGuild;
+}
+
+async function createPrivateDiscordChannel(
+  name: string, 
+  categoryId: string, 
+  guildId: string, 
+  discordUserId?: string | null
+): Promise<string | null> {
+  console.log(`Creating private Discord channel: ${name} in category ${categoryId}`);
+  
+  const permissionOverwrites = [
+    {
+      id: guildId,
+      type: 0,
+      deny: "1024",
+    },
+  ];
+
+  if (discordUserId) {
+    const userInGuild = await isUserInGuild(guildId, discordUserId);
+    if (userInGuild) {
+      permissionOverwrites.push({
+        id: discordUserId,
+        type: 1,
+        deny: "0",
+        allow: "1024",
+      } as any);
+      console.log(`Added permission for user ${discordUserId} to view channel`);
+    }
+  }
+
+  const response = await fetch(
+    `https://discord.com/api/v10/guilds/${guildId}/channels`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name,
+        type: 0,
+        parent_id: categoryId,
+        permission_overwrites: permissionOverwrites,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to create Discord channel:', errorText);
+    return null;
+  }
+
+  const channel = await response.json();
+  console.log('Discord private channel created successfully:', channel.id);
+  return channel.id;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -19,7 +116,6 @@ serve(async (req) => {
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // Vérifier l'authentification
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('Non authentifié');
@@ -33,58 +129,130 @@ serve(async (req) => {
       throw new Error('Utilisateur non valide');
     }
 
-    const { name, email, subject, message, project_type } = await req.json();
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username, discord_id')
+      .eq('id', user.id)
+      .single();
 
-    console.log('Envoi du message de contact sur Discord:', { name, email, subject });
+    const discordUsername = profile?.username || 'Utilisateur inconnu';
+    const discordId = profile?.discord_id || null;
 
-    // Créer l'embed Discord
-    const embed = {
-      title: '📬 Nouveau Message de Contact',
-      color: 0x5865F2,
-      fields: [
-        {
-          name: '👤 Nom',
-          value: name,
-          inline: true
-        },
-        {
-          name: '📧 Email',
-          value: email,
-          inline: true
-        },
-        {
-          name: '📁 Type de Projet',
-          value: project_type === 'website' ? '🌐 Site Internet' 
-                : project_type === 'discord-bot' ? '🤖 Bot Discord'
-                : project_type === 'both' ? '✨ Les deux'
-                : '💡 Autre',
-          inline: true
-        },
-        {
-          name: '📝 Sujet',
-          value: subject,
-          inline: false
-        },
-        {
-          name: '💬 Message',
-          value: message.length > 1024 ? message.substring(0, 1021) + '...' : message,
-          inline: false
-        },
-        {
-          name: '📋 Suivi',
-          value: 'Réponse prévue dans les 48h via Discord (WifiRic)',
-          inline: false
-        }
-      ],
-      timestamp: new Date().toISOString(),
-      footer: {
-        text: `ID Utilisateur: ${user.id}`
+    const { name, email, subject, message, project_type, contact_message_id } = await req.json();
+
+    console.log('Envoi du message de contact sur Discord:', { name, email, subject, contact_message_id });
+
+    const contactId = generateRandomId();
+    const channelName = `contact-${contactId}`;
+
+    const guildId = await getGuildIdFromCategory(DISCORD_CATEGORY_ID);
+    if (!guildId) {
+      throw new Error('Impossible de récupérer le serveur Discord');
+    }
+
+    const channelId = await createPrivateDiscordChannel(channelName, DISCORD_CATEGORY_ID, guildId, discordId);
+    
+    if (!channelId) {
+      throw new Error('Impossible de créer le salon Discord');
+    }
+
+    if (contact_message_id) {
+      const { error: updateError } = await supabase
+        .from('contact_messages')
+        .update({ discord_channel_name: channelName })
+        .eq('id', contact_message_id);
+      
+      if (updateError) {
+        console.error('Failed to update contact message with channel name:', updateError);
+      } else {
+        console.log('Updated contact message with discord_channel_name:', channelName);
       }
+    }
+
+    // Configuration du type de projet
+    const projectTypeConfig: Record<string, { label: string; icon: string; color: string }> = {
+      'website': { label: 'Site Internet', icon: '🌐', color: '#3B82F6' },
+      'discord-bot': { label: 'Bot Discord', icon: '🤖', color: '#5865F2' },
+      'both': { label: 'Site + Bot Discord', icon: '✨', color: '#8B5CF6' },
+      'other': { label: 'Autre Projet', icon: '💡', color: '#F59E0B' },
     };
 
-    // Envoyer sur Discord
+    const projectConfig = projectTypeConfig[project_type] || projectTypeConfig['other'];
+
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    const formattedTime = now.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const embed = {
+      author: {
+        name: '📨 NOUVEAU MESSAGE DE CONTACT',
+        icon_url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+      },
+      title: `${projectConfig.icon} ${subject}`,
+      color: 0x10B981, // Vert émeraude
+      description: `> Un nouveau message de contact a été reçu.\n> **Réponse attendue sous 48h.**`,
+      fields: [
+        {
+          name: '╔══════════════════════════════════════╗',
+          value: '​',
+          inline: false,
+        },
+        {
+          name: '🏷️ Référence',
+          value: `\`\`\`#${contactId}\`\`\``,
+          inline: true,
+        },
+        {
+          name: `${projectConfig.icon} Type de Projet`,
+          value: `\`\`\`${projectConfig.label}\`\`\``,
+          inline: true,
+        },
+        {
+          name: '​',
+          value: '​',
+          inline: true,
+        },
+        {
+          name: '👤 Informations Client',
+          value: `>>> **Nom:** ${name}\n**Email:** ${email}\n**Discord:** ${discordUsername}`,
+          inline: false,
+        },
+        {
+          name: '📝 Message',
+          value: `\`\`\`${message.length > 900 ? message.substring(0, 900) + '...' : message}\`\`\``,
+          inline: false,
+        },
+        {
+          name: '🕐 Reçu le',
+          value: `**${formattedDate}** à **${formattedTime}**`,
+          inline: false,
+        },
+        {
+          name: '╚══════════════════════════════════════╝',
+          value: '​',
+          inline: false,
+        },
+      ],
+      thumbnail: {
+        url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+      },
+      footer: {
+        text: `WifiRic • Système de Contact`,
+        icon_url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+      },
+      timestamp: new Date().toISOString(),
+    };
+
     const discordResponse = await fetch(
-      `https://discord.com/api/v10/channels/${DISCORD_CHANNEL_ID}/messages`,
+      `https://discord.com/api/v10/channels/${channelId}/messages`,
       {
         method: 'POST',
         headers: {
@@ -92,7 +260,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          embeds: [embed]
+          embeds: [embed],
         }),
       }
     );
@@ -103,10 +271,10 @@ serve(async (req) => {
       throw new Error(`Erreur Discord: ${discordResponse.status}`);
     }
 
-    console.log('Message envoyé sur Discord avec succès');
+    console.log('Message envoyé sur Discord avec succès dans le salon:', channelId);
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ success: true, contactId, channelId, channelName }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 

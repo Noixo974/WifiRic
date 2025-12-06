@@ -89,6 +89,10 @@ export default {
         'shimmer-wave': 'shimmerWave 3s ease-in-out infinite',
         'elastic-scale': 'elasticScale 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
         'breath': 'breath 4s ease-in-out infinite',
+        
+        // Toast animations
+        'toast-in': 'toastIn 0.4s cubic-bezier(0.21, 1.02, 0.73, 1) forwards',
+        'toast-out': 'toastOut 0.3s cubic-bezier(0.06, 0.71, 0.55, 1) forwards',
       },
       keyframes: {
         fadeInUp: {
@@ -282,6 +286,28 @@ export default {
           '50%': { 
             transform: 'scale(1.03)',
             opacity: '1'
+          },
+        },
+        
+        // Toast keyframes
+        toastIn: {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(-100%) scale(0.9)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0) scale(1)',
+          },
+        },
+        toastOut: {
+          '0%': {
+            opacity: '1',
+            transform: 'translateY(0) scale(1)',
+          },
+          '100%': {
+            opacity: '0',
+            transform: 'translateY(-100%) scale(0.9)',
           },
         },
       },

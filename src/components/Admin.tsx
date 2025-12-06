@@ -12,6 +12,7 @@ interface ContactMessage {
   message: string;
   project_type: string;
   created_at: string;
+  discord_channel_name: string | null;
 }
 
 interface AdminProps {
@@ -59,7 +60,7 @@ export const Admin: React.FC<AdminProps> = ({ onNavigateHome }) => {
     setLoading(true);
     const { data, error } = await supabase
       .from('contact_messages')
-      .select('*')
+      .select('id, name, email, subject, message, project_type, created_at, discord_channel_name')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -70,7 +71,7 @@ export const Admin: React.FC<AdminProps> = ({ onNavigateHome }) => {
     setLoading(false);
   };
 
-  const handleDeleteMessage = async (messageId: string) => {
+  const handleDeleteMessage = async (messageId: string, discordChannelName: string | null) => {
     setDeletingId(messageId);
     try {
       const { error } = await supabase
@@ -79,6 +80,21 @@ export const Admin: React.FC<AdminProps> = ({ onNavigateHome }) => {
         .eq('id', messageId);
 
       if (error) throw error;
+
+      // Send notification to Discord using the stored channel name
+      try {
+        const shortId = messageId.substring(0, 8);
+        await supabase.functions.invoke('send-deletion-to-discord', {
+          body: {
+            type: 'contact',
+            item_id: shortId,
+            channel_name: discordChannelName,
+          },
+        });
+      } catch (discordError) {
+        console.error('Error sending deletion to Discord:', discordError);
+        // Don't block deletion if Discord notification fails
+      }
 
       setMessages(messages.filter(msg => msg.id !== messageId));
       toast({
@@ -226,7 +242,7 @@ export const Admin: React.FC<AdminProps> = ({ onNavigateHome }) => {
                       <span className="text-sm text-muted-foreground">{formatDate(message.created_at)}</span>
                     </div>
                     <button
-                      onClick={() => handleDeleteMessage(message.id)}
+                      onClick={() => handleDeleteMessage(message.id, message.discord_channel_name)}
                       disabled={deletingId === message.id}
                       className="flex items-center gap-2 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors disabled:opacity-50"
                     >

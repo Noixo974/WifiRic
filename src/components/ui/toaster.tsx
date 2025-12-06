@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom"
 import {
   Toast,
   ToastClose,
@@ -11,7 +12,7 @@ import { useToast, type ToasterToast } from "../../hooks/use-toast"
 export function Toaster() {
   const { toasts } = useToast()
 
-  return (
+  return createPortal(
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }: ToasterToast) {
         return (
@@ -28,6 +29,7 @@ export function Toaster() {
         )
       })}
       <ToastViewport />
-    </ToastProvider>
+    </ToastProvider>,
+    document.body
   )
 }

@@ -17,6 +17,7 @@ export type Database = {
       contact_messages: {
         Row: {
           created_at: string
+          discord_channel_name: string | null
           email: string
           id: string
           message: string
@@ -27,6 +28,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          discord_channel_name?: string | null
           email: string
           id?: string
           message: string
@@ -37,6 +39,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          discord_channel_name?: string | null
           email?: string
           id?: string
           message?: string
@@ -44,6 +47,81 @@ export type Database = {
           project_type?: string
           subject?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          budget: number | null
+          budget_text: string | null
+          created_at: string
+          description: string
+          discord_channel_name: string | null
+          discord_username: string
+          email: string
+          full_name: string
+          id: string
+          logo_urls: string[] | null
+          order_id: string
+          order_type: string
+          other_colors: string[] | null
+          primary_color: string | null
+          secondary_color: string | null
+          site_name: string
+          site_type: string
+          site_type_other: string | null
+          specific_instructions: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          budget?: number | null
+          budget_text?: string | null
+          created_at?: string
+          description: string
+          discord_channel_name?: string | null
+          discord_username: string
+          email: string
+          full_name: string
+          id?: string
+          logo_urls?: string[] | null
+          order_id: string
+          order_type?: string
+          other_colors?: string[] | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          site_name: string
+          site_type: string
+          site_type_other?: string | null
+          specific_instructions?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          budget?: number | null
+          budget_text?: string | null
+          created_at?: string
+          description?: string
+          discord_channel_name?: string | null
+          discord_username?: string
+          email?: string
+          full_name?: string
+          id?: string
+          logo_urls?: string[] | null
+          order_id?: string
+          order_type?: string
+          other_colors?: string[] | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          site_name?: string
+          site_type?: string
+          site_type_other?: string | null
+          specific_instructions?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

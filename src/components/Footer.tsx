@@ -14,6 +14,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentPage }) => {
   const quickLinks = [
     { id: 'home', label: t('nav.home') },
     { id: 'about', label: t('nav.about') },
+    { id: 'order', label: t('nav.order') },
     { id: 'faq', label: t('nav.faq') },
     { id: 'contact', label: t('nav.contact') },
   ];

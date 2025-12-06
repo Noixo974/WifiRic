@@ -8,6 +8,7 @@ import { Hero } from './components/Hero';
 import { About } from './components/About';
 import { FAQ } from './components/FAQ';
 import { Contact } from './components/Contact';
+import { Order } from './components/Order';
 import { Profile } from './components/Profile';
 import { Admin } from './components/Admin';
 import { Install } from './components/Install';
@@ -46,6 +47,8 @@ function App() {
         return <About />;
       case 'faq':
         return <FAQ />;
+      case 'order':
+        return <Order onNavigateHome={() => setCurrentPage('home')} onNavigateContact={() => setCurrentPage('contact')} />;
       case 'contact':
         return <Contact />;
       case 'profile':
@@ -63,24 +66,26 @@ function App() {
     <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-          <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900/20 text-gray-900 dark:text-white transition-colors duration-300 flex flex-col">
-            <ParticleBackground />
-            <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
-            <main className="relative z-10 pt-20 flex-grow">
-              <div
-                className={`transition-all duration-300 ease-in-out ${
-                  isTransitioning
-                    ? 'opacity-0 transform translate-y-4'
-                    : 'opacity-100 transform translate-y-0'
-                }`}
-              >
-                {renderPage()}
-              </div>
-            </main>
-            <Footer setCurrentPage={setCurrentPage} />
+          <>
+            <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900/20 text-gray-900 dark:text-white transition-colors duration-300 flex flex-col">
+              <ParticleBackground />
+              <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+              <main className="relative z-10 pt-20 flex-grow">
+                <div
+                  className={`transition-all duration-300 ease-in-out ${
+                    isTransitioning
+                      ? 'opacity-0 transform translate-y-4'
+                      : 'opacity-100 transform translate-y-0'
+                  }`}
+                >
+                  {renderPage()}
+                </div>
+              </main>
+              <Footer setCurrentPage={setCurrentPage} />
+              <PWAInstallPrompt />
+            </div>
             <Toaster />
-            <PWAInstallPrompt />
-          </div>
+          </>
         </AuthProvider>
       </LanguageProvider>
     </ThemeProvider>

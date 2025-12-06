@@ -65,7 +65,7 @@ export const Contact: React.FC = () => {
     setIsSubmitting(true);
     try {
       // Sauvegarder dans la base de données
-      const { error: dbError } = await supabase
+      const { data: insertedMessage, error: dbError } = await supabase
         .from('contact_messages')
         .insert([
           {
@@ -76,11 +76,13 @@ export const Contact: React.FC = () => {
             message: formData.message,
             project_type: formData.projectType,
           },
-        ]);
+        ])
+        .select('id')
+        .single();
 
       if (dbError) throw dbError;
 
-      // Envoyer sur Discord
+      // Envoyer sur Discord avec l'ID du message pour mettre à jour le discord_channel_name
       const { error: discordError } = await supabase.functions.invoke('send-contact-to-discord', {
         body: {
           name: formData.name,
@@ -88,6 +90,7 @@ export const Contact: React.FC = () => {
           subject: formData.subject,
           message: formData.message,
           project_type: formData.projectType,
+          contact_message_id: insertedMessage?.id,
         },
       });
 

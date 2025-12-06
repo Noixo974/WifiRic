@@ -8,3 +8,9 @@ verify_jwt = true
 
 [functions.translate-review]
 verify_jwt = false
+
+[functions.send-order-to-discord]
+verify_jwt = false
+
+[functions.send-deletion-to-discord]
+verify_jwt = false

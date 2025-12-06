@@ -29,9 +29,20 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Listen for openAuthModal event from other components
+  useEffect(() => {
+    const handleOpenAuthModal = () => {
+      setIsAuthModalOpen(true);
+    };
+
+    window.addEventListener('openAuthModal', handleOpenAuthModal);
+    return () => window.removeEventListener('openAuthModal', handleOpenAuthModal);
+  }, []);
+
   const navItems = [
     { id: 'home', label: t('nav.home') },
     { id: 'about', label: t('nav.about') },
+    { id: 'order', label: t('nav.order') },
     { id: 'faq', label: t('nav.faq') },
     { id: 'contact', label: t('nav.contact') },
     { id: 'install', label: t('nav.install') },

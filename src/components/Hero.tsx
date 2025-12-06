@@ -9,6 +9,41 @@ interface HeroProps {
   onNavigateToServices?: () => void;
 }
 
+// Helper function to translate project type keys (handles both new keys and legacy translated values)
+const getProjectTypeLabel = (key: string | null, t: (key: string) => string): string => {
+  if (!key) return '';
+  
+  // New internal keys
+  const labels: Record<string, string> = {
+    'website': t('reviews.website'),
+    'discord_bot': t('reviews.discord_bot'),
+    'other': t('reviews.other')
+  };
+  
+  if (labels[key]) return labels[key];
+  
+  // Handle legacy values stored in different languages
+  const legacyMappings: Record<string, string> = {
+    'Site Internet': 'website',
+    'Sites Web': 'website',
+    'Website': 'website',
+    'Sitio Web': 'website',
+    'Webseite': 'website',
+    'Bot Discord': 'discord_bot',
+    'Discord Bot': 'discord_bot',
+    'Autre': 'other',
+    'Other': 'other',
+    'Otro': 'other',
+    'Andere': 'other',
+    'Outro': 'other'
+  };
+  
+  const mappedKey = legacyMappings[key];
+  if (mappedKey && labels[mappedKey]) return labels[mappedKey];
+  
+  return key;
+};
+
 export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
   const { t, language } = useLanguage();
   const { toast } = useToast();
@@ -63,6 +98,28 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
 
   // fetchReviews is inlined in useEffect to avoid stale closure issues
 
+  // Normalize legacy project type values to internal keys
+  const normalizeProjectType = (type: string | null): string | null => {
+    if (!type) return null;
+    
+    const legacyMappings: Record<string, string> = {
+      'Site Internet': 'website',
+      'Sites Web': 'website',
+      'Website': 'website',
+      'Sitio Web': 'website',
+      'Webseite': 'website',
+      'Bot Discord': 'discord_bot',
+      'Discord Bot': 'discord_bot',
+      'Autre': 'other',
+      'Other': 'other',
+      'Otro': 'other',
+      'Andere': 'other',
+      'Outro': 'other'
+    };
+    
+    return legacyMappings[type] || type;
+  };
+
   const applyFilters = (data: any[], rating: number | null, projectType: string | null) => {
     let filtered = [...data];
     
@@ -71,7 +128,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
     }
     
     if (projectType !== null) {
-      filtered = filtered.filter(r => r.project_type === projectType);
+      filtered = filtered.filter(r => normalizeProjectType(r.project_type) === projectType);
     }
     
     setReviews(filtered);
@@ -259,6 +316,11 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
     }
   }, [selectedRating, selectedProjectType]);
 
+  // Clear translations when language changes to allow re-translation
+  useEffect(() => {
+    setTranslatedReviews({});
+  }, [language]);
+
   // Auto-scroll effect
   useEffect(() => {
     if (!isAutoScrolling || reviews.length <= visibleCount) return;
@@ -390,20 +452,20 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
             {services.map((service, index) => (
               <div
                 key={index}
-                className={`group relative bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm rounded-2xl p-5 md:p-8 border border-gray-200/50 dark:border-gray-600/50 hover:border-[#9cd4e3]/50 transition-all duration-700 hover:shadow-xl hover:-translate-y-2 ${
+                className={`group relative bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-5 md:p-8 border border-gray-200/50 dark:border-gray-700/50 transform cursor-pointer will-change-transform ${
                   hasLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-                }`}
-                style={{ transitionDelay: `${700 + index * 150}ms` }}
+                } hover:-translate-y-2 hover:shadow-lg hover:border-[#9cd4e3]/50 transition-all duration-200 ease-out hover:scale-[1.02]`}
+                style={!hasLoaded ? { transitionDelay: `${700 + index * 150}ms` } : undefined}
               >
-                <div className={`inline-flex p-3 md:p-4 bg-gradient-to-r ${service.gradient} rounded-xl mb-4 md:mb-6 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                <div className={`inline-flex p-3 md:p-4 bg-gradient-to-r ${service.gradient} rounded-xl mb-4 md:mb-6 transition-all duration-200 ease-out group-hover:scale-110 group-hover:rotate-3`}>
                   <service.icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
                 </div>
                 
-                <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4 text-gray-800 dark:text-white group-hover:text-[#9cd4e3] transition-colors">
+                <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4 text-gray-800 dark:text-white transition-colors duration-200 group-hover:text-[#9cd4e3]">
                   {service.title}
                 </h3>
                 
-                <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed transition-colors duration-200">
                   {service.description}
                 </p>
               </div>
@@ -536,9 +598,9 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                           {t('reviews.all_types')}
                         </button>
                         <button
-                          onClick={() => handleProjectTypeFilter(t('reviews.website'))}
+                          onClick={() => handleProjectTypeFilter('website')}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                            selectedProjectType === t('reviews.website')
+                            selectedProjectType === 'website'
                               ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
@@ -546,9 +608,9 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                           {t('reviews.website')}
                         </button>
                         <button
-                          onClick={() => handleProjectTypeFilter(t('reviews.discord_bot'))}
+                          onClick={() => handleProjectTypeFilter('discord_bot')}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                            selectedProjectType === t('reviews.discord_bot')
+                            selectedProjectType === 'discord_bot'
                               ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
@@ -556,9 +618,9 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                           {t('reviews.discord_bot')}
                         </button>
                         <button
-                          onClick={() => handleProjectTypeFilter(t('reviews.other'))}
+                          onClick={() => handleProjectTypeFilter('other')}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                            selectedProjectType === t('reviews.other')
+                            selectedProjectType === 'other'
                               ? 'bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white shadow-md'
                               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                           }`}
@@ -624,19 +686,23 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                 </button>
               )}
               
-              <div 
-                className="overflow-hidden"
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              >
+              <div className="overflow-hidden">
                 <div 
-                  className="flex transition-transform duration-500 ease-out"
-                  style={{ 
-                    transform: `translateX(-${(currentReviewIndex % reviews.length) * (100 / visibleCount)}%)` 
-                  }}
+                  className="pt-4 pb-2"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                 >
-                  {[...reviews, ...reviews.slice(0, visibleCount)].map((review, idx) => (
+                  <div 
+                    className="flex transition-transform duration-500 ease-out"
+                    style={{ 
+                      transform: `translateX(-${(currentReviewIndex % reviews.length) * (100 / visibleCount)}%)` 
+                    }}
+                  >
+                  {(reviews.length > visibleCount 
+                    ? [...reviews, ...reviews.slice(0, visibleCount)] 
+                    : reviews
+                  ).map((review, idx) => (
                     <div
                       key={`${review.id}-${idx}`}
                       className="flex-shrink-0 px-2 md:px-4"
@@ -659,7 +725,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                             </h4>
                             {review.project_type && (
                               <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
-                                {review.project_type}
+                                {getProjectTypeLabel(review.project_type, t)}
                               </p>
                             )}
                           </div>
@@ -684,22 +750,45 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToServices }) => {
                             })}
                           </p>
                           
-                          {!translatedReviews[review.id] && (
-                            <button
-                              onClick={() => translateReview(review.id, review.content)}
-                              disabled={translatingReviews[review.id]}
-                              className="flex items-center gap-1 px-2 py-1 text-xs text-[#9cd4e3] hover:text-blue-500 transition-colors duration-200 disabled:opacity-50"
-                              title={t('reviews.translate') || 'Translate'}
-                            >
-                              <Languages className="w-3 h-3" />
-                              {translatingReviews[review.id] ? '...' : t('reviews.translate') || 'Translate'}
-                            </button>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {translatingReviews[review.id] ? (
+                              <div className="flex items-center gap-2 px-2 py-1 text-xs text-[#9cd4e3]">
+                                <div className="relative w-4 h-4">
+                                  <div className="absolute inset-0 border-2 border-[#9cd4e3]/30 rounded-full"></div>
+                                  <div className="absolute inset-0 border-2 border-transparent border-t-[#9cd4e3] rounded-full animate-spin"></div>
+                                </div>
+                                <span className="animate-pulse">{t('reviews.translating') || 'Traduction...'}</span>
+                              </div>
+                            ) : translatedReviews[review.id] ? (
+                              <button
+                                onClick={() => setTranslatedReviews(prev => {
+                                  const newState = { ...prev };
+                                  delete newState[review.id];
+                                  return newState;
+                                })}
+                                className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
+                                title={t('reviews.show_original') || 'Voir l\'original'}
+                              >
+                                <Languages className="w-3 h-3" />
+                                {t('reviews.show_original') || 'Original'}
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => translateReview(review.id, review.content)}
+                                className="flex items-center gap-1 px-2 py-1 text-xs text-[#9cd4e3] hover:text-blue-500 transition-colors duration-200"
+                                title={t('reviews.translate') || 'Traduire'}
+                              >
+                                <Languages className="w-3 h-3" />
+                                {t('reviews.translate') || 'Traduire'}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
+              </div>
               </div>
               
               {reviews.length > visibleCount && (
