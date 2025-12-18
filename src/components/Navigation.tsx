@@ -91,21 +91,21 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
             )}
           </div>
 
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="md:hidden flex items-center space-x-1.5">
             <SettingsMenu />
             {user ? (
               <UserMenu onProfileClick={() => setCurrentPage('profile')} onAdminClick={() => setCurrentPage('admin')} />
             ) : (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="px-3 py-2 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-lg text-sm hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95"
+                className="px-3 py-2 bg-gradient-to-r from-[#9cd4e3] to-blue-500 text-white font-semibold rounded-lg text-xs hover:shadow-lg transition-all duration-300 active:scale-95"
               >
                 {t('nav.login')}
               </button>
             )}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-110 active:scale-95 hover:bg-primary/5 rounded-lg"
+              className="p-2.5 text-muted-foreground hover:text-primary transition-all duration-300 active:scale-95 hover:bg-primary/5 rounded-lg"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -113,7 +113,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
         </div>
 
         {isOpen && (
-          <div className="md:hidden backdrop-blur-md bg-white/90 dark:bg-gray-900/90 rounded-lg mt-2 mb-4 shadow-lg animate-slide-up-fade">
+          <div className="md:hidden backdrop-blur-md bg-background/95 dark:bg-background/95 rounded-xl mt-2 mb-4 shadow-lg animate-slide-up-fade border border-border/50 overflow-hidden">
             {navItems.map((item) => (
               <button
                 key={item.id}
@@ -121,7 +121,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentP
                   setCurrentPage(item.id);
                   setIsOpen(false);
                 }}
-                className={`block w-full px-4 py-3 text-left text-lg font-semibold transition-all duration-300 hover:bg-primary/10 hover:translate-x-2 active:translate-x-1 ${currentPage === item.id ? 'text-primary bg-primary/5 border-l-4 border-primary' : 'text-muted-foreground border-l-4 border-transparent'}`}
+                className={`block w-full px-5 py-4 text-left text-base font-semibold transition-all duration-200 active:bg-primary/20 ${currentPage === item.id ? 'text-primary bg-primary/10 border-l-4 border-primary' : 'text-foreground border-l-4 border-transparent hover:bg-muted/50'}`}
               >
                 {item.label}
               </button>

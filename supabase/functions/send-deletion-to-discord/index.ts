@@ -194,7 +194,7 @@ serve(async (req) => {
     const embed = {
       author: {
         name: '⚠️ NOTIFICATION DE SUPPRESSION',
-        icon_url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+        icon_url: 'https://i.ibb.co/4nXx45XS/Logo.png',
       },
       title: `${config.icon} ${config.label} Supprimé(e)`,
       color: config.color,
@@ -206,8 +206,8 @@ serve(async (req) => {
           inline: false,
         },
         {
-          name: '🏷️ Identifiant',
-          value: `\`\`\`${item_id}\`\`\``,
+          name: '🔖 Référence',
+          value: `\`\`\`#${item_id.substring(0, 8).toUpperCase()}\`\`\``,
           inline: true,
         },
         {
@@ -242,11 +242,11 @@ serve(async (req) => {
         },
       ],
       thumbnail: {
-        url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+        url: 'https://i.ibb.co/4nXx45XS/Logo.png',
       },
       footer: {
         text: `WifiRic • Système de Gestion`,
-        icon_url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+        icon_url: 'https://i.ibb.co/4nXx45XS/Logo.png',
       },
       timestamp: new Date().toISOString(),
     };

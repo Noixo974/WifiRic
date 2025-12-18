@@ -11,6 +11,15 @@ const DISCORD_CATEGORY_ID = '1368669111328051272';
 const SUPABASE_URL = "https://ohsxncrxdqbsuxwybrjp.supabase.co";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
+// Convert numbers to bold unicode digits
+function toBoldUnicode(str: string): string {
+  const boldDigits: Record<string, string> = {
+    '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒',
+    '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗'
+  };
+  return str.split('').map(char => boldDigits[char] || char).join('');
+}
+
 async function getGuildIdFromCategory(categoryId: string): Promise<string | null> {
   const response = await fetch(
     `https://discord.com/api/v10/channels/${categoryId}`,
@@ -159,7 +168,7 @@ serve(async (req) => {
       throw new Error('Impossible de récupérer le serveur Discord');
     }
 
-    const channelName = `commande-${order_id}`;
+    const channelName = `📦・${toBoldUnicode(order_id)}`;
     const channelId = await createPrivateDiscordChannel(channelName, DISCORD_CATEGORY_ID, guildId, discordId);
     
     if (!channelId) {
@@ -315,18 +324,18 @@ serve(async (req) => {
     const embed = {
       author: {
         name: '🆕 NOUVELLE COMMANDE REÇUE',
-        icon_url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+        icon_url: 'https://i.ibb.co/4nXx45XS/Logo.png',
       },
       title: `${siteConfig.icon} ${site_name || 'Nouveau Projet Web'}`,
       color: 0x3B82F6, // Bleu professionnel
       description: `> Une nouvelle commande de site web a été soumise.\n> **Analyse et devis à préparer.**`,
       fields,
       thumbnail: {
-        url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+        url: 'https://i.ibb.co/4nXx45XS/Logo.png',
       },
       footer: {
         text: `WifiRic • Système de Commandes`,
-        icon_url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+        icon_url: 'https://i.ibb.co/4nXx45XS/Logo.png',
       },
       timestamp: new Date().toISOString(),
     };

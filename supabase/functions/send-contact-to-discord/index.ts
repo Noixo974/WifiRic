@@ -15,6 +15,15 @@ function generateRandomId(): string {
   return Math.floor(10000000 + Math.random() * 90000000).toString();
 }
 
+// Convert numbers to bold unicode digits
+function toBoldUnicode(str: string): string {
+  const boldDigits: Record<string, string> = {
+    '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒',
+    '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗'
+  };
+  return str.split('').map(char => boldDigits[char] || char).join('');
+}
+
 async function getGuildIdFromCategory(categoryId: string): Promise<string | null> {
   const response = await fetch(
     `https://discord.com/api/v10/channels/${categoryId}`,
@@ -143,7 +152,7 @@ serve(async (req) => {
     console.log('Envoi du message de contact sur Discord:', { name, email, subject, contact_message_id });
 
     const contactId = generateRandomId();
-    const channelName = `contact-${contactId}`;
+    const channelName = `✉️・${toBoldUnicode(contactId)}`;
 
     const guildId = await getGuildIdFromCategory(DISCORD_CATEGORY_ID);
     if (!guildId) {
@@ -194,7 +203,7 @@ serve(async (req) => {
     const embed = {
       author: {
         name: '📨 NOUVEAU MESSAGE DE CONTACT',
-        icon_url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+        icon_url: 'https://i.ibb.co/4nXx45XS/Logo.png',
       },
       title: `${projectConfig.icon} ${subject}`,
       color: 0x10B981, // Vert émeraude
@@ -242,11 +251,11 @@ serve(async (req) => {
         },
       ],
       thumbnail: {
-        url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+        url: 'https://i.ibb.co/4nXx45XS/Logo.png',
       },
       footer: {
         text: `WifiRic • Système de Contact`,
-        icon_url: 'https://cdn.discordapp.com/emojis/1055803759022284830.webp',
+        icon_url: 'https://i.ibb.co/4nXx45XS/Logo.png',
       },
       timestamp: new Date().toISOString(),
     };
