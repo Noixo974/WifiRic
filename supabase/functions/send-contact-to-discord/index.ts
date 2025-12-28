@@ -210,7 +210,7 @@ serve(async (req) => {
       description: `> Un nouveau message de contact a été reçu.\n> **Réponse attendue sous 48h.**`,
       fields: [
         {
-          name: '╔══════════════════════════════════════╗',
+          name: '╔═════════════════════════╗',
           value: '​',
           inline: false,
         },
@@ -245,7 +245,7 @@ serve(async (req) => {
           inline: false,
         },
         {
-          name: '╚══════════════════════════════════════╝',
+          name: '╚═════════════════════════╝',
           value: '​',
           inline: false,
         },

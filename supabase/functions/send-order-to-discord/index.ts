@@ -240,7 +240,7 @@ serve(async (req) => {
 
     const fields = [
       {
-        name: '╔═══════════════════════════════════════════════╗',
+        name: '╔═════════════════════════╗',
         value: '​',
         inline: false,
       },
@@ -316,7 +316,7 @@ serve(async (req) => {
 
     // Fermeture du cadre
     fields.push({
-      name: '╚═══════════════════════════════════════════════╝',
+      name: '╚═════════════════════════╝',
       value: '​',
       inline: false,
     });

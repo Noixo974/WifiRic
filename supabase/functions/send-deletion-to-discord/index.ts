@@ -201,7 +201,7 @@ serve(async (req) => {
       description: `> Un élément a été supprimé de la base de données.\n> Cette action est **irréversible**.`,
       fields: [
         {
-          name: '╔══════════════════════════╗',
+          name: '╔═════════════════════════╗',
           value: '​',
           inline: false,
         },
@@ -236,7 +236,7 @@ serve(async (req) => {
           inline: true,
         },
         {
-          name: '╚══════════════════════════╝',
+          name: '╚═════════════════════════╝',
           value: '​',
           inline: false,
         },
